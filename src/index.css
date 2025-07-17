@@ -1,0 +1,23 @@
+/* Mengimpor font Poppins dari Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: light;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+:root {
+  --warna-hijau: #20711f;
+}
+
+.btn-hijau {
+  background-color: var(--warna-hijau);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
