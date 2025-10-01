@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import {
   Clock,
@@ -49,7 +50,6 @@ const useGeolocation = () => {
         country: data.address?.country || "Unknown",
       };
     } catch (error) {
-      console.error("Reverse geocoding failed:", error);
       return { city: "Unknown", country: "Unknown" };
     }
   };

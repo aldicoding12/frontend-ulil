@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import costumAPI from "../../api";
@@ -12,11 +13,9 @@ function DetailBerita() {
     try {
       setLoading(true);
       const { data } = await costumAPI.get(`news/${id}`);
-      console.log(data);
       setBerita(data.data);
       setError(null);
     } catch (error) {
-      console.error("Gagal mengambil data berita:", error);
       setError("Gagal memuat berita. Silakan coba lagi.");
     } finally {
       setLoading(false);

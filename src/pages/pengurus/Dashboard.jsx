@@ -14,106 +14,85 @@ import {
   MapPin,
   PlusCircle,
   UserPlus,
+  AlertTriangle,
+  CheckCircle,
+  HandCoins,
+  Package,
 } from "lucide-react";
 
-// Import Zustand Store untuk data real
+// Import Zustand Stores
 import { useFinanceStore } from "../../store/financeStore";
+import { useDashboardStore } from "../../store/dashboardStore";
+import NewsModal from "../../components/admin/componens/NewsComponents/NewsModal ";
+import KegiatanForm from "../../components/admin/componens/kegiatan/KegiatanForm";
+import Donasiform from "../../components/admin/componens/donasi/Donasiform";
 
-const AdminDashboard = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
+const IntegratedAdminDashboard = () => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [activeModal, setActiveModal] = useState(null);
 
-  // 🚀 ZUSTAND STORE - Ambil data real dari finance store
+  // 🚀 FINANCE STORE - Data keuangan real
   const {
-    // Balance states
     currentBalance,
     formattedBalance,
-
-    // Report states
     reportData,
     reportLoading,
-
-    // Actions
     fetchBalance,
     fetchReport,
   } = useFinanceStore();
 
-  // Destructure report data untuk mendapatkan totalIncome dan totalExpense REAL
+  // 🚀 DASHBOARD STORE - Semua data dashboard
   const {
-    totalIncome = 0, // ✅ Data REAL pemasukan dengan default 0
-    totalExpense = 0, // ✅ Data REAL pengeluaran dengan default 0
-    incomes = [], // Array pemasukan
-    expenses = [], // Array pengeluaran
+    loading: dashboardLoading,
+    error: dashboardError,
+    lastUpdated,
+    dashboardStats,
+    recentActivities,
+    upcomingEvents,
+    fetchAllDashboardData,
+    clearError,
+  } = useDashboardStore();
+
+  // Destructure finance data
+  const {
+    totalIncome = 0,
+    totalExpense = 0,
+    incomes = [],
+    expenses = [],
   } = reportData;
-
-  // // Debug: Log data untuk memastikan ada
-  // console.log("🔍 Debug Dashboard Data:", {
-  //   totalIncome,
-  //   totalExpense,
-  //   saldoAkhir,
-  //   incomesCount: incomes.length,
-  //   expensesCount: expenses.length,
-  //   reportLoading,
-  //   currentBalance,
-  // });
-
-  // Dashboard data - hanya untuk data non-keuangan (sisa data dummy)
-  const [dashboardData, setDashboardData] = useState({
-    keuangan: {
-      totalDonasi: 125750000,
-      donasiHariIni: 2500000,
-      trendDonasi: 15.2,
-    },
-    berita: {
-      totalBerita: 45,
-      beritaPublished: 38,
-      beritaDraft: 7,
-      viewsTotal: 12450,
-      viewsHariIni: 340,
-      trendViews: 8.5,
-    },
-    jamaah: {
-      totalJamaah: 1247,
-      jamaahAktif: 892,
-      jamaahBaru: 23,
-      trendPertumbuhan: 12.3,
-    },
-    kegiatan: {
-      kegiatanAktif: 8,
-      kegiatanSelesai: 156,
-      pesertaTotal: 2340,
-      kegiatanMendatang: 12,
-    },
-  });
 
   // Load initial data
   useEffect(() => {
-    const loadDashboardData = async () => {
+    const loadInitialData = async () => {
       try {
-        // Load balance
-        await fetchBalance();
+        // Load finance data
+        await Promise.all([
+          fetchBalance(),
+          fetchReport("monthly", new Date().toISOString().split("T")[0]),
+        ]);
 
-        // Load report data dengan range dan date default
-        // Sesuai dengan defaultnya di store: monthly dan hari ini
-        const today = new Date().toISOString().split("T")[0];
-        await fetchReport("monthly", today);
+        // Load dashboard data
+        await fetchAllDashboardData();
       } catch (error) {
-        console.error("❌ Error loading dashboard data:", error);
+        console.error(error);
       }
     };
 
-    loadDashboardData();
-  }, []); // Remove dependencies to avoid infinite loop
-
-  // Simulate real-time updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLastUpdated(new Date());
-    }, 30000);
-
-    return () => clearInterval(interval);
+    loadInitialData();
   }, []);
 
+  // Auto refresh every 5 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!dashboardLoading && !reportLoading) {
+        refreshAllData();
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(interval);
+  }, [dashboardLoading, reportLoading]);
+
+  // Format currency
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -126,121 +105,164 @@ const AdminDashboard = () => {
     return new Intl.NumberFormat("id-ID").format(num);
   };
 
-  const refreshData = async () => {
-    setIsLoading(true);
+  // Refresh all data
+  const refreshAllData = async () => {
+    setIsRefreshing(true);
     try {
-      // Refresh real data dari store
-      await fetchBalance();
-
-      // Refresh report dengan range dan date yang sesuai
-      const today = new Date().toISOString().split("T")[0];
-      await fetchReport("monthly", today);
-
-      setLastUpdated(new Date());
+      await Promise.all([
+        fetchBalance(),
+        fetchReport("monthly", new Date().toISOString().split("T")[0]),
+        fetchAllDashboardData(),
+      ]);
     } catch (error) {
-      console.error("❌ Error refreshing data:", error);
+      console.error(error);
     } finally {
-      setIsLoading(false);
+      setIsRefreshing(false);
     }
   };
 
-  // Quick actions
+  // Fungsi untuk membuka modal
+  const openModal = (modalType) => {
+    setActiveModal(modalType);
+  };
+
+  // Fungsi untuk menutup modal
+  const closeModal = () => {
+    setActiveModal(null);
+  };
+
+  // Quick actions dengan modal
   const quickActions = [
     {
       id: 1,
       title: "Tambah Berita",
       icon: PlusCircle,
       color: "bg-blue-500",
+      modalType: "news",
     },
     {
       id: 2,
       title: "Tambah Kegiatan",
       icon: Calendar,
       color: "bg-green-500",
+      modalType: "kegiatan",
     },
     {
       id: 3,
-      title: "Laporan Keuangan",
-      icon: FileText,
-      color: "bg-purple-500",
-    },
-    {
-      id: 4,
-      title: "Manajemen Jamaah",
+      title: "Tambah Inventaris",
       icon: UserPlus,
       color: "bg-orange-500",
-    },
-  ];
-
-  // Recent activities
-  const recentActivities = [
-    {
-      id: 1,
-      message: "Donasi baru sebesar Rp 1,500,000",
-      time: "5 menit lalu",
-      user: "Ahmad Rizki",
-    },
-    {
-      id: 2,
-      message: 'Berita "Kajian Ramadan" dipublikasikan',
-      time: "15 menit lalu",
-      user: "Admin",
-    },
-    {
-      id: 3,
-      message: 'Kegiatan "Buka Bersama" mendapat 25 pendaftar baru',
-      time: "1 jam lalu",
-      user: "System",
+      modalType: "transaction",
     },
     {
       id: 4,
-      message: "Jamaah baru: Siti Nurhaliza bergabung",
-      time: "2 jam lalu",
-      user: "System",
-    },
-    {
-      id: 5,
-      message: "Pengeluaran untuk renovasi masjid: Rp 5,000,000",
-      time: "3 jam lalu",
-      user: "Admin",
+      title: "Tambah Donasi",
+      icon: HandCoins,
+      color: "bg-yellow-500",
+      modalType: "donasi",
     },
   ];
 
-  // Upcoming events
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: "Kajian Tafsir Al-Quran",
-      date: "2024-12-30",
-      time: "19:30",
-      location: "Aula Utama",
-      participants: 45,
-    },
-    {
-      id: 2,
-      title: "Sholat Tarawih",
-      date: "2024-12-30",
-      time: "20:00",
-      location: "Masjid Utama",
-      participants: 120,
-    },
-    {
-      id: 3,
-      title: "Buka Bersama Jamaah",
-      date: "2024-12-31",
-      time: "18:00",
-      location: "Halaman Masjid",
-      participants: 200,
-    },
-    {
-      id: 4,
-      title: "Kajian Hadits",
-      date: "2025-01-02",
-      time: "08:00",
-      location: "Ruang Kajian",
-      participants: 30,
-    },
-  ];
+  // Fungsi untuk render modal yang sesuai
+  const renderModal = () => {
+    switch (activeModal) {
+      case "news":
+        return (
+          <NewsModal
+            isOpen={true}
+            onClose={closeModal}
+            onSuccess={() => {
+              closeModal();
+              refreshAllData(); // Refresh data setelah berhasil tambah berita
+            }}
+          />
+        );
+      case "kegiatan":
+        return (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Tambah Kegiatan</h2>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-700">
+                  ✕
+                </button>
+              </div>
+              <KegiatanForm
+                onSuccess={() => {
+                  closeModal();
+                  refreshAllData(); // Refresh data setelah berhasil tambah kegiatan
+                }}
+                onCancel={closeModal}
+              />
+            </div>
+          </div>
+        );
+      case "transaction":
+        return (
+          <AddTransactionModal
+            isOpen={true}
+            onClose={closeModal}
+            onSuccess={() => {
+              closeModal();
+              refreshAllData(); // Refresh data setelah berhasil tambah transaksi
+            }}
+          />
+        );
+      case "donasi":
+        return (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Tambah Donasi</h2>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-700">
+                  ✕
+                </button>
+              </div>
+              <Donasiform
+                onSuccess={() => {
+                  closeModal();
+                  refreshAllData(); // Refresh data setelah berhasil tambah donasi
+                }}
+                onCancel={closeModal}
+              />
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  // Show error if any
+  if (dashboardError) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-md mx-auto bg-white rounded-xl shadow-sm p-6 border border-red-200">
+          <div className="flex items-center space-x-3">
+            <AlertTriangle className="w-6 h-6 text-red-500" />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Error Loading Dashboard
+              </h3>
+              <p className="text-gray-600 mt-1">{dashboardError}</p>
+              <button
+                onClick={() => {
+                  clearError();
+                  fetchAllDashboardData();
+                }}
+                className="mt-3 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                Coba Lagi
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -252,20 +274,25 @@ const AdminDashboard = () => {
               Dashboard Admin
             </h1>
             <p className="text-gray-600 mt-1">
-              Selamat datang kembali! Berikut ringkasan aktivitas masjid hari
-              ini.
+              Data real-time dari database masjid
             </p>
           </div>
           <div className="mt-4 sm:mt-0 flex items-center space-x-3">
             <div className="text-sm text-gray-500">
-              Update terakhir: {lastUpdated.toLocaleTimeString("id-ID")}
+              {lastUpdated ? (
+                <>Update: {lastUpdated.toLocaleTimeString("id-ID")}</>
+              ) : (
+                "Memuat..."
+              )}
             </div>
             <button
-              onClick={refreshData}
-              disabled={isLoading}
+              onClick={refreshAllData}
+              disabled={isRefreshing || dashboardLoading}
               className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50">
               <RefreshCw
-                className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+                className={`w-4 h-4 mr-2 ${
+                  isRefreshing || dashboardLoading ? "animate-spin" : ""
+                }`}
               />
               Refresh
             </button>
@@ -275,18 +302,22 @@ const AdminDashboard = () => {
 
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Total Donasi */}
+        {/* Total Donasi - REAL DATA */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Donasi</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
-                {formatCurrency(dashboardData.keuangan.totalDonasi)}
+                {dashboardLoading ? (
+                  <div className="animate-pulse h-8 bg-gray-200 rounded w-32"></div>
+                ) : (
+                  formatCurrency(dashboardStats.totalDonasi)
+                )}
               </p>
               <div className="flex items-center mt-2">
                 <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
                 <span className="text-sm text-green-600 font-medium">
-                  +{dashboardData.keuangan.trendDonasi}%
+                  +{dashboardStats.trendDonasi}%
                 </span>
                 <span className="text-sm text-gray-500 ml-1">bulan ini</span>
               </div>
@@ -297,18 +328,22 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Total Jamaah */}
+        {/* Total Jamaah - REAL DATA */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Jamaah</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
-                {formatNumber(dashboardData.jamaah.totalJamaah)}
+                {dashboardLoading ? (
+                  <div className="animate-pulse h-8 bg-gray-200 rounded w-24"></div>
+                ) : (
+                  formatNumber(dashboardStats.totalJamaah)
+                )}
               </p>
               <div className="flex items-center mt-2">
                 <TrendingUp className="w-4 h-4 text-blue-500 mr-1" />
                 <span className="text-sm text-blue-600 font-medium">
-                  +{dashboardData.jamaah.trendPertumbuhan}%
+                  +{dashboardStats.trendPertumbuhan}%
                 </span>
                 <span className="text-sm text-gray-500 ml-1">bulan ini</span>
               </div>
@@ -319,18 +354,22 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Total Berita */}
+        {/* Total Berita - REAL DATA */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Berita</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
-                {dashboardData.berita.totalBerita}
+                {dashboardLoading ? (
+                  <div className="animate-pulse h-8 bg-gray-200 rounded w-16"></div>
+                ) : (
+                  dashboardStats.totalBerita
+                )}
               </p>
               <div className="flex items-center mt-2">
                 <Eye className="w-4 h-4 text-purple-500 mr-1" />
                 <span className="text-sm text-purple-600 font-medium">
-                  {formatNumber(dashboardData.berita.viewsTotal)} views
+                  {formatNumber(dashboardStats.viewsTotal)} views
                 </span>
               </div>
             </div>
@@ -340,7 +379,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Kegiatan Aktif */}
+        {/* Kegiatan Aktif - REAL DATA */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
@@ -348,12 +387,16 @@ const AdminDashboard = () => {
                 Kegiatan Aktif
               </p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
-                {dashboardData.kegiatan.kegiatanAktif}
+                {dashboardLoading ? (
+                  <div className="animate-pulse h-8 bg-gray-200 rounded w-12"></div>
+                ) : (
+                  dashboardStats.kegiatanAktif
+                )}
               </p>
               <div className="flex items-center mt-2">
                 <Calendar className="w-4 h-4 text-orange-500 mr-1" />
                 <span className="text-sm text-orange-600 font-medium">
-                  {dashboardData.kegiatan.kegiatanMendatang} mendatang
+                  {dashboardStats.kegiatanMendatang} mendatang
                 </span>
               </div>
             </div>
@@ -366,15 +409,16 @@ const AdminDashboard = () => {
 
       {/* Detailed Stats Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Keuangan Detail - MENGGUNAKAN DATA REAL */}
+        {/* Keuangan Detail - REAL DATA */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
-              Ringkasan Keuangan bulan ini
+              Ringkasan Keuangan (Real-time)
             </h3>
-            <button className="text-gray-400 hover:text-gray-600">
-              <MoreVertical className="w-5 h-5" />
-            </button>
+            <div className="flex items-center space-x-1">
+              <CheckCircle className="w-4 h-4 text-green-500" />
+              <span className="text-xs text-green-600">Live</span>
+            </div>
           </div>
 
           {reportLoading ? (
@@ -401,7 +445,7 @@ const AdminDashboard = () => {
               <div className="border-t pt-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-900">
-                    Saldo Akhir Real-Time
+                    Saldo Real-time
                   </span>
                   <span className="text-sm font-bold text-gray-900">
                     {formattedBalance || formatCurrency(currentBalance || 0)}
@@ -423,38 +467,37 @@ const AdminDashboard = () => {
                   </span>
                 </div>
               </div>
-
-              {/* Status indicator */}
-              <div className="text-xs text-gray-500 text-center mt-3">
-                💡 Data diambil real-time dari laporan keuangan (Monthly)
-              </div>
             </div>
           )}
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions dengan Modal */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Aksi Cepat
           </h3>
           <div className="grid grid-cols-2 gap-3">
-            {quickActions.map((action) => (
-              <button
-                key={action.id}
-                className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200 text-left">
-                <div
-                  className={`${action.color} w-8 h-8 rounded-lg flex items-center justify-center mb-2`}>
-                  <action.icon className="w-4 h-4 text-white" />
-                </div>
-                <p className="text-sm font-medium text-gray-900">
-                  {action.title}
-                </p>
-              </button>
-            ))}
+            {quickActions.map((action) => {
+              const IconComponent = action.icon;
+              return (
+                <button
+                  key={action.id}
+                  onClick={() => openModal(action.modalType)}
+                  className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200 text-left group">
+                  <div
+                    className={`${action.color} w-8 h-8 rounded-lg flex items-center justify-center mb-2 group-hover:scale-105 transition-transform`}>
+                    <IconComponent className="w-4 h-4 text-white" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {action.title}
+                  </p>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Performance Metrics */}
+        {/* Performance Metrics - REAL DATA */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Metrik Performa
@@ -464,37 +507,58 @@ const AdminDashboard = () => {
               <div>
                 <p className="text-sm text-gray-600">Jamaah Aktif</p>
                 <p className="text-lg font-semibold text-gray-900">
-                  {formatNumber(dashboardData.jamaah.jamaahAktif)}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="flex items-center text-green-600">
-                  <ArrowUpRight className="w-4 h-4 mr-1" />
-                  <span className="text-sm font-medium">71.5%</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Views Berita Hari Ini</p>
-                <p className="text-lg font-semibold text-gray-900">
-                  {formatNumber(dashboardData.berita.viewsHariIni)}
+                  {dashboardLoading ? (
+                    <div className="animate-pulse h-6 bg-gray-200 rounded w-16"></div>
+                  ) : (
+                    formatNumber(dashboardStats.jamaahAktif)
+                  )}
                 </p>
               </div>
               <div className="text-right">
                 <div className="flex items-center text-green-600">
                   <ArrowUpRight className="w-4 h-4 mr-1" />
                   <span className="text-sm font-medium">
-                    +{dashboardData.berita.trendViews}%
+                    {(
+                      (dashboardStats.jamaahAktif /
+                        dashboardStats.totalJamaah) *
+                      100
+                    ).toFixed(1)}
+                    %
                   </span>
                 </div>
               </div>
             </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Views Hari Ini</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {dashboardLoading ? (
+                    <div className="animate-pulse h-6 bg-gray-200 rounded w-16"></div>
+                  ) : (
+                    formatNumber(dashboardStats.viewsHariIni)
+                  )}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="flex items-center text-green-600">
+                  <ArrowUpRight className="w-4 h-4 mr-1" />
+                  <span className="text-sm font-medium">
+                    +{dashboardStats.trendViews}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Jamaah Baru</p>
                 <p className="text-lg font-semibold text-gray-900">
-                  {dashboardData.jamaah.jamaahBaru}
+                  {dashboardLoading ? (
+                    <div className="animate-pulse h-6 bg-gray-200 rounded w-12"></div>
+                  ) : (
+                    dashboardStats.jamaahBaru
+                  )}
                 </p>
               </div>
               <div className="text-right">
@@ -504,86 +568,184 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
+
+            {/* Inventory Stats - REAL DATA */}
+            <div className="border-t pt-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Inventaris</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {dashboardLoading ? (
+                      <div className="animate-pulse h-6 bg-gray-200 rounded w-12"></div>
+                    ) : (
+                      dashboardStats.inventoryStats?.totalItems || 0
+                    )}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center text-orange-600">
+                    <Package className="w-4 h-4 mr-1" />
+                    <span className="text-sm font-medium">
+                      {dashboardStats.inventoryStats?.pendingRequests || 0}{" "}
+                      pending
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Bottom Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activities */}
+        {/* Recent Activities - REAL DATA */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
               Aktivitas Terbaru
             </h3>
-            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-              Lihat Semua
-            </button>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs text-green-600">Live</span>
+            </div>
           </div>
-          <div className="space-y-4">
-            {recentActivities.map((activity) => (
-              <div key={activity.id} className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900 font-medium">
-                    {activity.message}
-                  </p>
-                  <div className="flex items-center mt-1 space-x-2">
-                    <span className="text-xs text-gray-500">
-                      {activity.time}
-                    </span>
-                    <span className="text-xs text-gray-400">•</span>
-                    <span className="text-xs text-gray-500">
-                      {activity.user}
-                    </span>
+
+          {dashboardLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-gray-200 rounded-full mt-2 animate-pulse"></div>
+                  <div className="flex-1">
+                    <div className="animate-pulse h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="animate-pulse h-3 bg-gray-200 rounded w-1/2"></div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : recentActivities.length > 0 ? (
+            <div className="space-y-4">
+              {recentActivities.slice(0, 5).map((activity) => (
+                <div key={activity.id} className="flex items-start space-x-3">
+                  <div
+                    className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
+                      activity.type === "donation"
+                        ? "bg-green-500"
+                        : activity.type === "news"
+                        ? "bg-blue-500"
+                        : activity.type === "event"
+                        ? "bg-purple-500"
+                        : "bg-gray-400"
+                    }`}></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-900 font-medium">
+                      {activity.message}
+                    </p>
+                    <div className="flex items-center mt-1 space-x-2">
+                      <span className="text-xs text-gray-500">
+                        {activity.time}
+                      </span>
+                      <span className="text-xs text-gray-400">•</span>
+                      <span className="text-xs text-gray-500">
+                        {activity.user}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-500">Tidak ada aktivitas terbaru</p>
+            </div>
+          )}
         </div>
 
-        {/* Upcoming Events */}
+        {/* Upcoming Events - REAL DATA */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
               Kegiatan Mendatang
             </h3>
-            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+            <button
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              onClick={() => (window.location.href = "/admin/events")}>
               Kelola
             </button>
           </div>
-          <div className="space-y-4">
-            {upcomingEvents.map((event) => (
-              <div
-                key={event.id}
-                className="border-l-4 border-green-500 pl-4 py-2">
-                <h4 className="text-sm font-medium text-gray-900">
-                  {event.title}
-                </h4>
-                <div className="flex items-center mt-1 space-x-4 text-xs text-gray-500">
-                  <div className="flex items-center">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {event.date} • {event.time}
+
+          {dashboardLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="border-l-4 border-gray-200 pl-4 py-2">
+                  <div className="animate-pulse h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="animate-pulse h-3 bg-gray-200 rounded w-1/2 mb-1"></div>
+                  <div className="animate-pulse h-3 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              ))}
+            </div>
+          ) : upcomingEvents.length > 0 ? (
+            <div className="space-y-4">
+              {upcomingEvents.slice(0, 4).map((event) => (
+                <div
+                  key={event.id}
+                  className="border-l-4 border-green-500 pl-4 py-2 hover:bg-gray-50 transition-colors">
+                  <h4 className="text-sm font-medium text-gray-900">
+                    {event.title || event.eventName}
+                  </h4>
+                  <div className="flex items-center mt-1 space-x-4 text-xs text-gray-500">
+                    <div className="flex items-center">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {new Date(
+                        event.startDate || event.date
+                      ).toLocaleDateString("id-ID")}{" "}
+                      •{" "}
+                      {event.time ||
+                        new Date(
+                          event.startDate || event.date
+                        ).toLocaleTimeString("id-ID", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                    </div>
+                  </div>
+                  <div className="flex items-center mt-1 space-x-4 text-xs text-gray-500">
+                    <div className="flex items-center">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      {event.location || "Masjid"}
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="w-3 h-3 mr-1" />
+                      {event.participants || event.maxParticipants || 0} peserta
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center mt-1 space-x-4 text-xs text-gray-500">
-                  <div className="flex items-center">
-                    <MapPin className="w-3 h-3 mr-1" />
-                    {event.location}
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="w-3 h-3 mr-1" />
-                    {event.participants} peserta
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Calendar className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-500">Tidak ada kegiatan mendatang</p>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Data Source Info */}
+      <div className="mt-8 text-center">
+        <div className="inline-flex items-center px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+          <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+          <span className="text-sm text-green-700">
+            Dashboard terintegrasi dengan database real-time
+          </span>
+        </div>
+      </div>
+
+      {/* Render modal yang aktif */}
+      {renderModal()}
     </div>
   );
 };
 
-export default AdminDashboard;
+export default IntegratedAdminDashboard;

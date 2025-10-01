@@ -109,7 +109,6 @@ function NewsManagement() {
         });
       }
     } catch (error) {
-      console.error("Error fetching news:", error);
       alert(
         "Gagal memuat berita: " +
           (error.response?.data?.message || error.message)
@@ -159,7 +158,6 @@ function NewsManagement() {
       handleCloseModal();
       getNews(pagination.current); // Refresh data
     } catch (error) {
-      console.error("Error saving news:", error);
       alert(
         "Gagal menyimpan berita: " +
           (error.response?.data?.message || error.message)
@@ -198,7 +196,6 @@ function NewsManagement() {
         setShowViewModal(false);
       }
     } catch (error) {
-      console.error("Error deleting news:", error);
       alert(
         "Gagal menghapus berita: " +
           (error.response?.data?.message || error.message)
@@ -295,10 +292,6 @@ function NewsManagement() {
                   className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
                 />
                 Refresh
-              </button>
-              <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                <Download className="w-4 h-4" />
-                Export
               </button>
             </div>
           </div>

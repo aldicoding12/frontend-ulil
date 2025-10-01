@@ -148,7 +148,6 @@ const KegiatanForm = ({ kegiatan, isOpen, onClose, onSave }) => {
       onSave();
       onClose();
     } catch (error) {
-      console.error("Error saving event:", error);
       alert(
         error.response?.data?.message ||
           "Terjadi kesalahan saat menyimpan event"

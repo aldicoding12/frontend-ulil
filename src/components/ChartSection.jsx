@@ -11,23 +11,8 @@ const ChartSection = ({
   isRealTime = false, // 🆕 Real-time indicator
   lastUpdate = null, // 🆕 Last update timestamp
 }) => {
-  // 🔍 Debug chart data
-  // console.log("📊 ChartSection received:");
-  // console.log("- chartData:", chartData);
-  // console.log("- chartData length:", chartData?.length);
-  // console.log("- totalIncome:", totalIncome);
-  // console.log("- totalExpense:", totalExpense);
-  // console.log("- isRealTime:", isRealTime);
-
   const hasValidChartData =
     chartData && Array.isArray(chartData) && chartData.length > 0;
-
-  // 🔧 Fix: Safe way to check development mode
-  const isDevelopment =
-    typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1" ||
-      window.location.hostname.includes("dev"));
 
   return (
     <div className="w-full bg-white p-6 rounded shadow">
@@ -184,40 +169,6 @@ const ChartSection = ({
                 <div className="text-xs text-green-600 font-medium">
                   🔄 Auto-update
                 </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* 🔧 Debug button untuk development */}
-        {isDevelopment && (
-          <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
-            <div className="flex gap-2 flex-wrap">
-              <button
-                onClick={() => {
-                  console.log("🔍 Chart Debug Info:");
-                  console.log("chartData:", chartData);
-                  console.log("selectedRange:", selectedRange);
-                  console.log("hasValidChartData:", hasValidChartData);
-                  console.log("isRealTime:", isRealTime);
-                  console.log("lastUpdate:", lastUpdate);
-                }}
-                className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors">
-                🔍 Debug Chart Data
-              </button>
-
-              {isRealTime && (
-                <button
-                  onClick={() => {
-                    console.log("🚀 Real-time Status:");
-                    console.log("- Data Points:", chartData?.length || 0);
-                    console.log("- Last Update:", lastUpdate);
-                    console.log("- Total Income:", totalIncome);
-                    console.log("- Total Expense:", totalExpense);
-                  }}
-                  className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition-colors">
-                  🚀 Real-time Status
-                </button>
               )}
             </div>
           </div>

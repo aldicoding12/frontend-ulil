@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useCallback, useEffect } from "react";
 import costumAPI from "../api";
 
@@ -19,7 +20,6 @@ export const useBalance = () => {
       setBalance(data.balance);
       setFormattedBalance(data.formatted);
     } catch (err) {
-      console.error("Failed to fetch balance:", err);
       setError("Gagal memuat saldo");
     } finally {
       setLoading(false);
@@ -39,7 +39,6 @@ export const useBalance = () => {
 
       return { success: true, message: data.message };
     } catch (err) {
-      console.error("Failed to sync balance:", err);
       setError("Gagal melakukan sinkronisasi saldo");
       return { success: false, message: "Gagal melakukan sinkronisasi saldo" };
     } finally {

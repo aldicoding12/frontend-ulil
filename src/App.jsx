@@ -11,8 +11,8 @@ import LaporanView from "./pages/jamaah/laporanView";
 import DetailBerita from "./pages/jamaah/DetailBerita";
 import KegiatanView from "./pages/jamaah/KegiatanView";
 import DonasiView from "./pages/jamaah/DonasiView";
-import ReservasiView from "./pages/jamaah/ReservasiView";
 import InventarisView from "./pages/jamaah/InventarisView";
+import DonationSuccess from "./pages/jamaah/DonationSuccess ";
 
 // Pages pengurus
 import Dashboard from "./pages/pengurus/Dashboard";
@@ -22,6 +22,7 @@ import KagiatanManagement from "./pages/pengurus/KagiatanManagement";
 import DonasiManagement from "./pages/pengurus/DonasiManagement";
 import KontakManagement from "./pages/pengurus/KontakManagement";
 import InventarisAdmin from "./pages/pengurus/InventarisManagement";
+import SettingManagement from "./pages/pengurus/SettingManagement";
 
 // auth
 import LoginView from "./pages/pengurus/auth/LoginView";
@@ -45,11 +46,6 @@ class ErrorBoundary extends React.Component {
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
   }
-
-  componentDidCatch(error, errorInfo) {
-    console.error("App Error:", error, errorInfo);
-  }
-
   render() {
     if (this.state.hasError) {
       return (
@@ -106,16 +102,15 @@ const router = createBrowserRouter([
         path: "inventaris",
         element: <InventarisView />,
       },
-
-      // 🟡 AUTHENTICATED ROUTES (Perlu login - jamaah + pengurus bisa akses)
       {
-        path: "profil",
-        element: (
-          <ProtectedRoute>
-            <Profilview />
-          </ProtectedRoute>
-        ),
+        path: "donation/success",
+        element: <DonationSuccess />,
       },
+      {
+        path: "profile",
+        element: <Profilview />,
+      },
+      // 🟡 AUTHENTICATED ROUTES (Perlu login - jamaah + pengurus bisa akses)
       {
         path: "laporan",
         element: (
@@ -129,14 +124,6 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <DonasiView />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "reservasi",
-        element: (
-          <ProtectedRoute>
-            <ReservasiView />
           </ProtectedRoute>
         ),
       },
@@ -195,6 +182,11 @@ const router = createBrowserRouter([
       {
         path: "feedback",
         element: <KontakManagement />,
+        handle: { title: "Manajemen Kontak" },
+      },
+      {
+        path: "settings",
+        element: <SettingManagement />,
         handle: { title: "Manajemen Kontak" },
       },
       // Tambahan route pengurus lainnya bisa ditambahkan di sini

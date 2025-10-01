@@ -58,13 +58,6 @@ export const createIncomeColumns = (onEdit, onDelete, data) => [
       // Pastikan kita mendapatkan item yang benar
       const currentItem = item || (data && data[index]) || null;
 
-      // Debug log untuk troubleshooting
-      console.log("Income item in actions:", {
-        currentItem,
-        index,
-        dataLength: data?.length,
-      });
-
       return (
         <div className="flex gap-1 justify-center">
           <button
@@ -80,8 +73,6 @@ export const createIncomeColumns = (onEdit, onDelete, data) => [
                 alert("Data tidak tersedia untuk di-edit");
                 return;
               }
-
-              console.log("Editing income:", currentItem);
               onEdit(currentItem);
             }}
             className="group relative p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 transform hover:scale-110 active:scale-95"
@@ -102,8 +93,6 @@ export const createIncomeColumns = (onEdit, onDelete, data) => [
                 alert("Data tidak tersedia untuk dihapus");
                 return;
               }
-
-              console.log("Deleting income:", currentItem);
               onDelete(currentItem);
             }}
             className="group relative p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition-all duration-200 transform hover:scale-110 active:scale-95"
@@ -151,13 +140,6 @@ export const createExpenseColumns = (onEdit, onDelete, data) => [
       // Pastikan kita mendapatkan item yang benar
       const currentItem = item || (data && data[index]) || null;
 
-      // Debug log untuk troubleshooting
-      console.log("Expense item in actions:", {
-        currentItem,
-        index,
-        dataLength: data?.length,
-      });
-
       return (
         <div className="flex gap-1 justify-center">
           <button
@@ -173,8 +155,6 @@ export const createExpenseColumns = (onEdit, onDelete, data) => [
                 alert("Data tidak tersedia untuk di-edit");
                 return;
               }
-
-              console.log("Editing expense:", currentItem);
               onEdit(currentItem);
             }}
             className="group relative p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 transform hover:scale-110 active:scale-95"
@@ -188,15 +168,10 @@ export const createExpenseColumns = (onEdit, onDelete, data) => [
               e.stopPropagation();
 
               if (!currentItem) {
-                console.error("Data tidak tersedia untuk dihapus", {
-                  currentItem,
-                  index,
-                });
                 alert("Data tidak tersedia untuk dihapus");
                 return;
               }
 
-              console.log("Deleting expense:", currentItem);
               onDelete(currentItem);
             }}
             className="group relative p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition-all duration-200 transform hover:scale-110 active:scale-95"

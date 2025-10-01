@@ -10,8 +10,6 @@ const DataTable = ({
   totalLabel,
   headerColor,
 }) => {
-  console.log(`DataTable ${title} data:`, data); // Debug log
-
   return (
     <>
       <h2 className={`text-lg font-semibold mb-4 ${headerColor}`}>{title}</h2>

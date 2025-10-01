@@ -37,8 +37,6 @@ export const useTransaction = () => {
           incomeData
         );
 
-        console.log("✅ Income added:", data);
-
         // Notify real-time change
         notifyChange("income", "create", data.data, data.currentBalance);
 
@@ -50,7 +48,6 @@ export const useTransaction = () => {
           syncInfo: data.syncInfo,
         };
       } catch (err) {
-        console.error("Failed to add income:", err);
         const errorMessage =
           err.response?.data?.message || "Gagal menambah pemasukan";
         setError(errorMessage);
@@ -74,8 +71,6 @@ export const useTransaction = () => {
           expenseData
         );
 
-        console.log("✅ Expense added:", data);
-
         // Notify real-time change
         notifyChange("expense", "create", data.data, data.currentBalance);
 
@@ -87,7 +82,6 @@ export const useTransaction = () => {
           syncInfo: data.syncInfo,
         };
       } catch (err) {
-        console.error("Failed to add expense:", err);
         const errorMessage =
           err.response?.data?.message || "Gagal menambah pengeluaran";
         setError(errorMessage);
@@ -111,8 +105,6 @@ export const useTransaction = () => {
           incomeData
         );
 
-        console.log("✅ Income updated:", data);
-
         // Notify real-time change
         notifyChange("income", "update", data.data, data.currentBalance);
 
@@ -124,7 +116,6 @@ export const useTransaction = () => {
           syncInfo: data.syncInfo,
         };
       } catch (err) {
-        console.error("Failed to update income:", err);
         const errorMessage =
           err.response?.data?.message || "Gagal mengupdate pemasukan";
         setError(errorMessage);
@@ -148,8 +139,6 @@ export const useTransaction = () => {
           expenseData
         );
 
-        console.log("✅ Expense updated:", data);
-
         // Notify real-time change
         notifyChange("expense", "update", data.data, data.currentBalance);
 
@@ -161,7 +150,6 @@ export const useTransaction = () => {
           syncInfo: data.syncInfo,
         };
       } catch (err) {
-        console.error("Failed to update expense:", err);
         const errorMessage =
           err.response?.data?.message || "Gagal mengupdate pengeluaran";
         setError(errorMessage);
@@ -182,8 +170,6 @@ export const useTransaction = () => {
       try {
         const { data } = await costumAPI.delete(`/finance/incomes/${id}`);
 
-        console.log("✅ Income deleted:", data);
-
         // Notify real-time change
         notifyChange("income", "delete", data.deletedData, data.currentBalance);
 
@@ -194,7 +180,6 @@ export const useTransaction = () => {
           syncInfo: data.syncInfo,
         };
       } catch (err) {
-        console.error("Failed to delete income:", err);
         const errorMessage =
           err.response?.data?.message || "Gagal menghapus pemasukan";
         setError(errorMessage);
@@ -215,8 +200,6 @@ export const useTransaction = () => {
       try {
         const { data } = await costumAPI.delete(`/finance/expenses/${id}`);
 
-        console.log("✅ Expense deleted:", data);
-
         // Notify real-time change
         notifyChange(
           "expense",
@@ -232,7 +215,6 @@ export const useTransaction = () => {
           syncInfo: data.syncInfo,
         };
       } catch (err) {
-        console.error("Failed to delete expense:", err);
         const errorMessage =
           err.response?.data?.message || "Gagal menghapus pengeluaran";
         setError(errorMessage);

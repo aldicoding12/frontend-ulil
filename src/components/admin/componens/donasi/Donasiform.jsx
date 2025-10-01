@@ -190,7 +190,6 @@ const DonasiForm = ({ kegiatan, isOpen, onClose, onSave }) => {
       onSave();
       onClose();
     } catch (error) {
-      console.error("Error saving donation event:", error);
       alert(
         error.response?.data?.message ||
           "Terjadi kesalahan saat menyimpan event donasi"

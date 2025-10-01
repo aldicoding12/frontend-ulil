@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useRef, useEffect, useCallback } from "react";
 import { Chart } from "chart.js/auto";
 import { CHART_COLORS } from "../constants/reportConstants";
@@ -6,38 +7,16 @@ export const useChart = (chartData, selectedRange) => {
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
 
-  console.log("🎨 useChart called with:");
-  console.log("- chartData type:", typeof chartData);
-  console.log("- chartData is Array:", Array.isArray(chartData));
-  console.log("- chartData length:", chartData?.length);
-  console.log("- chartData:", chartData);
-  console.log("- selectedRange:", selectedRange);
-
   const validateChartData = useCallback((data) => {
-    console.log("🔍 Validating chart data:", data);
-
-    // Must be array
-    if (!Array.isArray(data)) {
-      console.log("❌ Chart data is not an array");
+    if (!Array.isArray(data) || data.length === 0) {
       return false;
     }
 
-    // Must have data
-    if (data.length === 0) {
-      console.log("❌ Chart data is empty array");
-      return false;
-    }
-
-    // Check first item structure
     const firstItem = data[0];
-    console.log("🔍 First item:", firstItem);
-
     if (!firstItem || typeof firstItem !== "object") {
-      console.log("❌ First item is not an object");
       return false;
     }
 
-    // Must have required fields
     const hasValidFields =
       firstItem.date ||
       firstItem.year ||
@@ -45,21 +24,12 @@ export const useChart = (chartData, selectedRange) => {
       firstItem.expense !== undefined ||
       firstItem.balance !== undefined;
 
-    if (!hasValidFields) {
-      console.log("❌ First item missing required fields");
-      return false;
-    }
-
-    console.log("✅ Chart data is valid");
-    return true;
+    return hasValidFields;
   }, []);
 
   const prepareChartData = useCallback(
     (data, range) => {
-      console.log("🎨 prepareChartData called with:", { data, range });
-
       if (!validateChartData(data)) {
-        console.log("❌ Invalid chart data, returning empty");
         return { labels: [], datasets: [] };
       }
 
@@ -94,12 +64,6 @@ export const useChart = (chartData, selectedRange) => {
         balanceValues = data.map(
           (item) => item.balance || item.balanceEnd || item.saldo || 0
         );
-
-        console.log("✅ Chart data prepared:");
-        console.log("- Labels count:", labels.length);
-        console.log("- Income values:", incomeValues);
-        console.log("- Expense values:", expenseValues);
-        console.log("- Balance values:", balanceValues);
 
         return {
           labels,
@@ -139,7 +103,6 @@ export const useChart = (chartData, selectedRange) => {
           ],
         };
       } catch (error) {
-        console.error("❌ Error preparing chart data:", error);
         return { labels: [], datasets: [] };
       }
     },
@@ -147,22 +110,16 @@ export const useChart = (chartData, selectedRange) => {
   );
 
   useEffect(() => {
-    console.log("🎨 useChart effect triggered");
-
     if (!chartRef.current) {
-      console.log("❌ No chart ref");
       return;
     }
 
-    // Destroy existing chart first
     if (chartInstanceRef.current) {
-      console.log("🗑️ Destroying existing chart");
       chartInstanceRef.current.destroy();
       chartInstanceRef.current = null;
     }
 
     if (!validateChartData(chartData)) {
-      console.log("❌ Invalid chart data, not creating chart");
       return;
     }
 
@@ -171,11 +128,8 @@ export const useChart = (chartData, selectedRange) => {
       const chartConfig = prepareChartData(chartData, selectedRange);
 
       if (!chartConfig.labels.length) {
-        console.log("❌ No labels for chart");
         return;
       }
-
-      console.log("🎨 Creating new chart...");
 
       chartInstanceRef.current = new Chart(ctx, {
         type: "line",
@@ -228,15 +182,12 @@ export const useChart = (chartData, selectedRange) => {
           animation: { duration: 500 },
         },
       });
-
-      console.log("✅ Chart created successfully");
     } catch (error) {
-      console.error("❌ Error creating chart:", error);
+      console.error("Error creating chart:", error);
     }
 
     return () => {
       if (chartInstanceRef.current) {
-        console.log("🗑️ Cleanup: destroying chart");
         chartInstanceRef.current.destroy();
         chartInstanceRef.current = null;
       }

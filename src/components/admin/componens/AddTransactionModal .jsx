@@ -49,7 +49,6 @@ const AddTransactionModal = ({
   useEffect(() => {
     if (isOpen) {
       if (isEditMode && editData) {
-        console.log("📝 Editing transaction:", editData);
         // Populate form with edit data
         setFormData({
           name: editData.name || "",
@@ -60,7 +59,6 @@ const AddTransactionModal = ({
           description: editData.description || editData.note || "", // Support both fields
         });
       } else {
-        console.log("📝 New transaction - using today:", getTodayLocalDate());
         // Reset form for new transaction dengan tanggal hari ini
         setFormData(getInitialFormData());
       }
@@ -113,8 +111,6 @@ const AddTransactionModal = ({
 
     setIsSubmitting(true);
     try {
-      console.log("💾 Submitting transaction with date:", formData.date);
-
       await onSubmit({
         ...formData,
         amount: parseFloat(formData.amount),
@@ -128,7 +124,6 @@ const AddTransactionModal = ({
         handleClose();
       }, 1000);
     } catch (error) {
-      console.error("Error submitting transaction:", error);
       setErrors({
         submit: error.message || "Gagal menyimpan data. Silakan coba lagi.",
       });

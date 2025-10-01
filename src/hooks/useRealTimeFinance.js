@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // hooks/useRealTimeFinance.js - 🆕 New hook untuk real-time coordination
 import { useCallback, useEffect, useRef } from "react";
 
@@ -11,8 +12,6 @@ export const useRealTimeFinance = (
   // Handle transaction changes dengan debouncing
   const handleTransactionChange = useCallback(
     async (changeInfo) => {
-      console.log("🔄 Transaction change detected:", changeInfo);
-
       // Clear previous timeout
       if (refreshTimeoutRef.current) {
         clearTimeout(refreshTimeoutRef.current);
@@ -21,8 +20,6 @@ export const useRealTimeFinance = (
       // Debounce refresh untuk avoid multiple rapid calls
       refreshTimeoutRef.current = setTimeout(async () => {
         try {
-          console.log("🔄 Refreshing data after transaction change...");
-
           // Refresh balance
           if (balanceHook?.fetchBalance) {
             await balanceHook.fetchBalance();
@@ -32,8 +29,6 @@ export const useRealTimeFinance = (
           if (reportHook?.refreshReport) {
             await reportHook.refreshReport();
           }
-
-          console.log("✅ Real-time refresh completed");
         } catch (error) {
           console.error("❌ Error during real-time refresh:", error);
         }
@@ -61,8 +56,6 @@ export const useRealTimeFinance = (
 
   // Manual refresh all data
   const refreshAllData = useCallback(async () => {
-    console.log("🔄 Manual refresh all data...");
-
     try {
       const promises = [];
 
@@ -75,7 +68,6 @@ export const useRealTimeFinance = (
       }
 
       await Promise.all(promises);
-      console.log("✅ Manual refresh completed");
     } catch (error) {
       console.error("❌ Error during manual refresh:", error);
       throw error;

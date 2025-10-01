@@ -1,11 +1,16 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
-import { useMatches, Outlet } from "react-router-dom";
+import { useMatches, Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "../components/auth/AuthProvider";
 import Side from "../components/admin/side";
-import { Menu, Search, Bell, Moon, Maximize2 } from "lucide-react";
+import { Menu, Search, Bell, Moon, Maximize2, LogOut } from "lucide-react";
 
 const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
 
   const matches = useMatches();
   const activeTitle =
@@ -41,6 +46,36 @@ const MainLayout = () => {
       month: "long",
       year: "numeric",
     });
+  };
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    try {
+      setIsLoggingOut(true);
+
+      // Gunakan fungsi logout dari AuthProvider
+      const success = await logout();
+
+      if (success) {
+        navigate("/login", { replace: true });
+      }
+    } catch (error) {
+      alert("Gagal logout. Silakan coba lagi.");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  // Get initials from user name
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
@@ -82,7 +117,7 @@ const MainLayout = () => {
 
             {/* Right */}
             <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-              {/* Search - Hidden on very small screens */}
+              {/* Search */}
               <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -112,15 +147,29 @@ const MainLayout = () => {
               {/* User Profile */}
               <div className="flex items-center gap-2 sm:gap-3 hover:bg-gray-100 rounded-lg p-1 sm:p-2 transition-colors cursor-pointer">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white text-xs sm:text-sm font-bold flex-shrink-0">
-                  A
+                  {getInitials(user?.name)}
                 </div>
                 <div className="hidden lg:block min-w-0">
                   <span className="text-sm font-medium text-gray-700 block truncate">
-                    Admin Masjid
+                    {user?.name || "User"}
                   </span>
-                  <p className="text-xs text-gray-500 truncate">Super Admin</p>
+                  <p className="text-xs text-gray-500 truncate capitalize">
+                    {user?.role || "Jamaah"}
+                  </p>
                 </div>
               </div>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Logout">
+                <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden xl:inline text-sm font-medium">
+                  {isLoggingOut ? "Logging out..." : "Logout"}
+                </span>
+              </button>
             </div>
           </div>
         </header>

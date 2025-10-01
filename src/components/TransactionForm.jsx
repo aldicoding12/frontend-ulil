@@ -46,12 +46,6 @@ const TransactionForm = ({ type = "income", onSuccess }) => {
       if (onSuccess) {
         onSuccess(result);
       }
-
-      console.log(
-        `${type} berhasil ditambahkan. Saldo baru: Rp ${result.currentBalance?.toLocaleString(
-          "id-ID"
-        )}`
-      );
     }
   };
 

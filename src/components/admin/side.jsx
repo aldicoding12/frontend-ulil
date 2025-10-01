@@ -1,9 +1,29 @@
-import React from "react";
+/* eslint-disable no-unused-vars */
+import React, { useState, useEffect } from "react";
 import { sideList } from "./sideList";
 import { NavLink } from "react-router-dom";
 import { X, ChevronLeft } from "lucide-react";
+import customAPI from "../../api";
 
 const Side = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
+  const [profileData, setProfileData] = useState(null);
+
+  // Fetch profile data untuk mendapatkan logo
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await customAPI.get("/profile");
+      if (response.data && response.data.data) {
+        setProfileData(response.data.data);
+      }
+    } catch (error) {
+      // Jika error, profile tetap null dan akan menggunakan default
+    }
+  };
+
   return (
     <>
       {/* Overlay untuk mobile */}
@@ -30,12 +50,23 @@ const Side = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
               className={`flex items-center gap-3 ${
                 isCollapsed ? "md:justify-center" : ""
               }`}>
-              <div className="bg-emerald-600 w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg">
-                🕌
+              {/* Logo dari Profile atau Default */}
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden">
+                {profileData?.image ? (
+                  <img
+                    src={profileData.image}
+                    alt="Logo Masjid"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="bg-emerald-600 w-full h-full rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xl">🕌</span>
+                  </div>
+                )}
               </div>
               <div className={`${isCollapsed ? "md:hidden" : ""}`}>
                 <h1 className="text-lg font-bold text-gray-800">
-                  Masjid Admin
+                  {profileData?.mosqueName || "Ulil Albab"}
                 </h1>
                 <p className="text-sm text-gray-500">Dashboard Panel</p>
               </div>
@@ -125,7 +156,7 @@ const Side = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
               <div
                 className={`flex-1 min-w-0 ${isCollapsed ? "md:hidden" : ""}`}>
                 <p className="font-semibold text-gray-800 text-sm">
-                  Admin Masjid
+                  Admin {profileData?.mosqueName || "Ulil Albab"}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
                   admin@masjid.com

@@ -38,8 +38,6 @@ export const usePDFDownload = () => {
         };
       }
 
-      console.log(`📄 Downloading ${reportType} PDF with params:`, params);
-
       const response = await costumAPI.get(endpoints[reportType], {
         params,
         responseType: "blob",
@@ -82,11 +80,7 @@ export const usePDFDownload = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-
-      console.log(`✅ PDF ${reportType} berhasil diunduh: ${filename}`);
     } catch (err) {
-      console.error("❌ Error downloading PDF:", err);
-
       // Provide more specific error messages
       if (err.response?.status === 404) {
         setError(

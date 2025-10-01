@@ -13,19 +13,8 @@ const ProtectedRoute = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  console.log("🛡️ ProtectedRoute: Checking access", {
-    requiredRole,
-    isAuthenticated,
-    isLoading,
-    userRole: user?.role,
-    userName: user?.name,
-    pathname: location.pathname,
-    canAccess: canAccess(requiredRole),
-  });
-
   // Show loading state while checking authentication
   if (isLoading) {
-    console.log("⏳ ProtectedRoute: Showing loading state");
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50">
         <div className="text-center p-8 bg-white rounded-lg shadow-lg">
@@ -39,17 +28,11 @@ const ProtectedRoute = ({
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    console.log("❌ ProtectedRoute: Redirecting to login - not authenticated");
     return <Navigate to={fallbackPath} state={{ from: location }} replace />;
   }
 
   // Check role-based access
   if (!canAccess(requiredRole)) {
-    console.log("❌ ProtectedRoute: Access denied", {
-      userRole: user?.role,
-      requiredRole,
-    });
-
     return (
       <AccessDeniedPage
         userRole={user?.role}
@@ -60,7 +43,6 @@ const ProtectedRoute = ({
   }
 
   // Access granted
-  console.log("✅ ProtectedRoute: Access granted, rendering children");
   return children;
 };
 

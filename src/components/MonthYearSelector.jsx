@@ -57,7 +57,6 @@ const MonthYearSelector = ({
   // 🚀 REAL-TIME SYNC - Update local state when selectedDate prop changes
   useEffect(() => {
     if (selectedDate && selectedDate !== currentSelectedDate) {
-      console.log("📅 Syncing date selector with store:", selectedDate);
       const dateObj = new Date(selectedDate);
       setSelectedMonth(dateObj.getMonth() + 1);
       setSelectedYear(dateObj.getFullYear());
@@ -73,7 +72,6 @@ const MonthYearSelector = ({
     setCurrentSelectedDate(dateString);
 
     if (onDateChange && dateString !== selectedDate) {
-      console.log("📅 Date changed via components:", dateString);
       onDateChange(dateString);
     }
   };
@@ -112,7 +110,6 @@ const MonthYearSelector = ({
 
   // Handle direct date input dengan real-time sync
   const handleDateChange = (date) => {
-    console.log("📅 Direct date input:", date);
     setCurrentSelectedDate(date);
 
     // Parse date and update components

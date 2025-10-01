@@ -1,6 +1,6 @@
-// components/auth/AuthProvider.jsx - Enhanced untuk pembatasan akses
+/* eslint-disable no-unused-vars */
 import React, { createContext, useContext, useState, useEffect } from "react";
-import customAPI from "../../api"; // Sesuaikan path
+import customAPI from "../../api";
 
 const AuthContext = createContext();
 
@@ -12,14 +12,9 @@ export const useAuth = () => {
   return context;
 };
 
-// Enhanced cookie utility
 const getCookie = (name) => {
   try {
-    console.log(`🍪 Looking for cookie: ${name}`);
-    console.log(`🍪 All cookies: ${document.cookie}`);
-
     if (!document.cookie) {
-      console.log(`🍪 No cookies found`);
       return null;
     }
 
@@ -28,14 +23,11 @@ const getCookie = (name) => {
 
     if (parts.length === 2) {
       const cookieValue = parts.pop().split(";").shift();
-      console.log(`🍪 Found ${name} cookie:`, cookieValue ? "YES" : "NO");
       return cookieValue;
     }
 
-    console.log(`🍪 Cookie ${name} not found`);
     return null;
   } catch (error) {
-    console.error("🍪 Error getting cookie:", error);
     return null;
   }
 };
@@ -45,75 +37,83 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check authentication status
   useEffect(() => {
-    console.log("🔵 AuthProvider: Initial auth check...");
     checkAuthStatus();
   }, []);
 
   const checkAuthStatus = async () => {
     try {
-      console.log("🔵 AuthProvider: Starting auth check");
       setIsLoading(true);
 
-      // Check if JWT cookie exists
-      const jwtCookie = getCookie("jwt");
+      // Cek localStorage dulu untuk restore state cepat
+      const storedUserData = localStorage.getItem("userData");
 
-      if (jwtCookie) {
-        console.log("✅ JWT Cookie found, verifying with server...");
-
+      if (storedUserData) {
         try {
-          // Verify token with backend
-          const response = await customAPI.get("/user/verify-token");
+          const parsedUserData = JSON.parse(storedUserData);
 
-          if (response.data.success) {
-            const userData = response.data.data;
-            console.log("✅ Token verified, user data:", userData);
+          // Set state dari localStorage dulu (untuk UX yang lebih baik)
+          setUser(parsedUserData);
+          setIsAuthenticated(true);
 
-            setUser(userData);
-            setIsAuthenticated(true);
-
-            // Store user data in localStorage sebagai backup
-            localStorage.setItem("userData", JSON.stringify(userData));
-          } else {
-            console.log("❌ Token verification failed");
-            handleAuthFailure();
-          }
-        } catch (verifyError) {
-          console.error("❌ Token verification error:", verifyError);
+          // Verify dengan backend di background (tidak blocking)
+          verifyWithBackend(parsedUserData);
+        } catch (parseError) {
+          localStorage.removeItem("userData");
           handleAuthFailure();
         }
       } else {
-        // No cookie, check localStorage sebagai fallback
-        console.log("❌ No JWT cookie found, checking localStorage...");
-
-        const userData = localStorage.getItem("userData");
-        if (userData) {
-          try {
-            const parsedUser = JSON.parse(userData);
-            console.log("⚠️ Using localStorage data:", parsedUser);
-
-            // Set user but mark as potentially stale
-            setUser(parsedUser);
-            setIsAuthenticated(true);
-          } catch (parseError) {
-            console.error(
-              "❌ Error parsing localStorage userData:",
-              parseError
-            );
-            handleAuthFailure();
-          }
-        } else {
-          console.log("❌ No authentication data found");
-          handleAuthFailure();
-        }
+        // Tidak ada data di localStorage
+        handleAuthFailure();
       }
     } catch (error) {
-      console.error("❌ Auth check error:", error);
       handleAuthFailure();
     } finally {
-      console.log("🔵 Auth check completed");
       setIsLoading(false);
+    }
+  };
+
+  const verifyWithBackend = async (cachedUserData) => {
+    try {
+      const jwtCookie = getCookie("jwt");
+
+      if (!jwtCookie) {
+        // PERBAIKAN: Jika tidak ada cookie tapi ada cached data, tetap gunakan cached data
+        // User akan tetap "login" sampai mereka explicitly logout
+        if (cachedUserData) {
+          return;
+        }
+        handleAuthFailure();
+        return;
+      }
+
+      const response = await customAPI.get("/user/verify-token", {
+        withCredentials: true,
+      });
+
+      if (response.data.success) {
+        const userData = response.data.data;
+
+        // Update state dan localStorage dengan data terbaru dari server
+        setUser(userData);
+        setIsAuthenticated(true);
+        localStorage.setItem("userData", JSON.stringify(userData));
+      } else {
+        // PERBAIKAN: Jika verifikasi gagal tapi ada cached data, tetap gunakan cached data
+        if (cachedUserData) {
+          return;
+        }
+        handleAuthFailure();
+      }
+    } catch (error) {
+      // PERBAIKAN: Jika error apapun (network, server down, dll) dan ada cached data,
+      // tetap gunakan cached data - user tetap login
+      if (cachedUserData) {
+        return;
+      }
+
+      // Hanya logout jika memang tidak ada data sama sekali
+      handleAuthFailure();
     }
   };
 
@@ -123,70 +123,53 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userData");
   };
 
-  // Login function
   const login = (userData) => {
-    console.log("🟢 AuthProvider: Login called with:", userData);
-    try {
-      setUser(userData);
-      setIsAuthenticated(true);
+    setUser(userData);
+    setIsAuthenticated(true);
+    localStorage.setItem("userData", JSON.stringify(userData));
 
-      // Store user data in localStorage
-      localStorage.setItem("userData", JSON.stringify(userData));
-      console.log("📦 User data stored in localStorage");
+    const redirectPath = userData.role === "pengurus" ? "/pengurus" : "/";
 
-      // Return redirect path berdasarkan role
-      const redirectPath = userData.role === "pengurus" ? "/pengurus" : "/";
-      console.log("🔄 Login successful, redirect to:", redirectPath);
-      return redirectPath;
-    } catch (error) {
-      console.error("❌ Login error:", error);
-      return "/";
-    }
+    return redirectPath;
   };
 
-  // Logout function
   const logout = async () => {
-    console.log("🔴 AuthProvider: Logout called");
     try {
-      // Call backend logout to clear cookie
-      try {
-        await customAPI.post("/user/logout");
-        console.log("✅ Backend logout successful");
-      } catch (logoutError) {
-        console.error("⚠️ Backend logout error:", logoutError);
-        // Continue with frontend logout even if backend fails
-      }
-
-      // Clear local state and storage
+      // Clear frontend state FIRST
       setUser(null);
       setIsAuthenticated(false);
       localStorage.removeItem("userData");
-      localStorage.removeItem("userEmail");
 
-      console.log("🔴 Frontend logout completed");
-      return "/login";
+      // Call backend logout (in background, non-blocking)
+      try {
+        await customAPI.post("/user/logout", {}, { withCredentials: true });
+      } catch (logoutError) {
+        // Tidak masalah jika backend logout gagal, yang penting frontend sudah clear
+      }
+
+      // Clear all cookies
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
     } catch (error) {
-      console.error("❌ Logout error:", error);
-      return "/login";
+      // Tetap clear state meskipun ada error
+      setUser(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem("userData");
+
+      return true;
     }
   };
 
-  // Helper functions untuk role checking
-  const isPengurus = () => {
-    return user?.role === "pengurus";
-  };
-
-  const isJamaah = () => {
-    return user?.role === "jamaah";
-  };
-
-  const hasRole = (role) => {
-    return user?.role === role;
-  };
-
+  // Helper functions
+  const isPengurus = () => user?.role === "pengurus";
+  const isJamaah = () => user?.role === "jamaah";
+  const hasRole = (role) => user?.role === role;
   const canAccess = (requiredRole) => {
     if (!isAuthenticated) return false;
-    if (!requiredRole) return true; // No role required, just need to be authenticated
+    if (!requiredRole) return true;
     return user?.role === requiredRole;
   };
 
@@ -197,20 +180,22 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     checkAuthStatus,
-    // Helper functions
     isPengurus,
     isJamaah,
     hasRole,
     canAccess,
   };
 
-  console.log("📊 AuthProvider Current State:", {
-    isAuthenticated,
-    isLoading,
-    userRole: user?.role,
-    userName: user?.name,
-    cookieExists: !!getCookie("jwt"),
-  });
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

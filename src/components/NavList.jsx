@@ -4,6 +4,7 @@ import React from "react";
 
 function NavList({ activeItem, setActiveItem }) {
   const navItems = [
+    { name: "Profile", href: "/profile" },
     { name: "Berita", href: "/berita" },
     { name: "Kegiatan", href: "/kegiatan" },
     { name: "Inventaris", href: "/inventaris" },

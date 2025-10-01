@@ -49,7 +49,7 @@ const RegistrationForm = ({ kegiatan, isOpen, onClose, onSubmit }) => {
       setFormData({ name: "", phone: "" });
       setErrors({});
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error(error);
     } finally {
       setLoading(false);
     }

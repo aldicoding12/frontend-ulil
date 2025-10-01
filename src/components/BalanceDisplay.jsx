@@ -17,7 +17,6 @@ const BalanceDisplay = ({ className = "", showSyncButton = false }) => {
     const result = await syncBalance();
     if (result.success) {
       // Bisa tambahkan toast notification di sini
-      console.log("Saldo berhasil disinkronisasi");
     }
   };
 

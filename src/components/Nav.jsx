@@ -37,7 +37,7 @@ function Nav() {
         <div className="navbar-start relative z-10">
           {/* Mobile Menu Button with Animation */}
           <div className="dropdown">
-            <divf
+            <div
               tabIndex={0}
               role="button"
               className="btn btn-ghost lg:hidden group relative overflow-hidden"
@@ -60,7 +60,7 @@ function Nav() {
                   d="M4 6h16M4 12h8m-8 6h16"
                 />
               </svg>
-            </divf>
+            </div>
 
             {/* Enhanced Mobile Dropdown */}
             <ul
@@ -69,28 +69,6 @@ function Nav() {
                   ? "opacity-100 scale-100 translate-y-0"
                   : "opacity-0 scale-95 -translate-y-2"
               }`}>
-              {/* Mobile Profil Dropdown */}
-              <li className="mb-2">
-                <details className="group">
-                  <summary className="font-semibold text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-300 cursor-pointer px-4 py-3">
-                    <span className="flex items-center gap-2">🏛️ Profil</span>
-                  </summary>
-                  <ul className="mt-2 space-y-1 ml-4">
-                    {["Visi & Misi", "Profil", "Sejarah", "Galeri"].map(
-                      (item, index) => (
-                        <li key={index}>
-                          <a
-                            className="block py-2 px-4 text-sm text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 transform hover:translate-x-1"
-                            onClick={() => setActiveItem(item)}>
-                            {item}
-                          </a>
-                        </li>
-                      )
-                    )}
-                  </ul>
-                </details>
-              </li>
-
               <NavList activeItem={activeItem} setActiveItem={setActiveItem} />
             </ul>
           </div>
@@ -120,57 +98,6 @@ function Nav() {
         {/* Desktop Menu */}
         <div className="navbar-center hidden lg:flex relative z-10">
           <ul className="menu menu-horizontal px-1 text-base font-medium space-x-2">
-            {/* Desktop Profil Dropdown */}
-            <li className="group">
-              <details className="relative">
-                <summary
-                  className={`font-semibold cursor-pointer px-4 py-2 rounded-lg transition-all duration-300 hover:bg-green-50 flex items-center gap-2 ${
-                    activeItem === "Profil"
-                      ? "text-green-600"
-                      : "text-gray-700 hover:text-green-600"
-                  }`}>
-                  🏛️ Profil
-                  <svg
-                    className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </summary>
-
-                {/* Enhanced Dropdown */}
-                <ul className="absolute top-full left-0 mt-2 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-green-100 p-4 w-48 transform opacity-0 scale-95 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100">
-                  {[
-                    { name: "Visi & Misi", icon: "🎯" },
-                    { name: "Profil", icon: "📋" },
-                    { name: "Sejarah", icon: "📚" },
-                    { name: "Galeri", icon: "🖼️" },
-                  ].map((item, index) => (
-                    <li key={index}>
-                      <a
-                        className={`flex items-center gap-3 py-3 px-3 rounded-lg transition-all duration-200 transform hover:translate-x-1 group/item ${
-                          activeItem === item.name
-                            ? "text-green-600 bg-green-50"
-                            : "text-gray-700 hover:text-green-600 hover:bg-green-50"
-                        }`}
-                        onClick={() => setActiveItem(item.name)}>
-                        <span className="text-lg group-hover/item:scale-110 transition-transform duration-200">
-                          {item.icon}
-                        </span>
-                        <span>{item.name}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            </li>
-
             <NavList activeItem={activeItem} setActiveItem={setActiveItem} />
           </ul>
         </div>

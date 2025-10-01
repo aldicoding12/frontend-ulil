@@ -17,7 +17,6 @@ export const useFinanceReport = () => {
   const [lastFetchParams, setLastFetchParams] = useState(null);
   const abortControllerRef = useRef(null);
 
-  // 🆕 Enhanced fetchReport dengan real-time support
   const fetchReport = useCallback(
     async (range, date = null, forceRefresh = false) => {
       // Cancel previous request if still pending
@@ -32,10 +31,6 @@ export const useFinanceReport = () => {
       setError(null);
 
       try {
-        console.log(
-          `📊 Fetching ${range} report for date: ${date}, forceRefresh: ${forceRefresh}`
-        );
-
         // Build URL dengan query parameter
         let url = `/finance/report/${range}-auto`;
         const params = new URLSearchParams();
@@ -52,25 +47,19 @@ export const useFinanceReport = () => {
           url += `?${params.toString()}`;
         }
 
-        console.log(`🌐 API URL: ${url}`);
-
         const { data } = await costumAPI.get(url, { signal });
-
-        console.log("🔍 API Response:", data);
 
         if (!data?.data) {
           throw new Error("Invalid data format from API");
         }
 
         const apiData = data.data;
-        console.log("📊 API Data Keys:", Object.keys(apiData));
 
         // Extract transactions - support multiple formats
         let incomes = [];
         let expenses = [];
 
         if (apiData.transactions) {
-          // New format: { transactions: { incomes: [], expenses: [] } }
           incomes = Array.isArray(apiData.transactions.incomes)
             ? apiData.transactions.incomes
             : [];
@@ -78,52 +67,29 @@ export const useFinanceReport = () => {
             ? apiData.transactions.expenses
             : [];
         } else {
-          // Old format: { incomes: [], expenses: [] }
           incomes = Array.isArray(apiData.incomes) ? apiData.incomes : [];
           expenses = Array.isArray(apiData.expenses) ? apiData.expenses : [];
         }
 
-        console.log("💰 Extracted transactions:");
-        console.log("- Incomes:", incomes.length, incomes);
-        console.log("- Expenses:", expenses.length, expenses);
-
-        // 🔧 MANUAL CALCULATION - Always calculate from transactions
+        // Manual calculation - Always calculate from transactions
         const manualTotalIncome = incomes.reduce((sum, income) => {
-          const amount = income.amount || 0;
-          console.log(`Income: ${income.name} = ${amount}`);
-          return sum + amount;
+          return sum + (income.amount || 0);
         }, 0);
 
         const manualTotalExpense = expenses.reduce((sum, expense) => {
-          const amount = expense.amount || 0;
-          console.log(`Expense: ${expense.name} = ${amount}`);
-          return sum + amount;
+          return sum + (expense.amount || 0);
         }, 0);
-
-        console.log("🧮 Manual Calculations:");
-        console.log("- Manual Total Income:", manualTotalIncome);
-        console.log("- Manual Total Expense:", manualTotalExpense);
-        console.log(
-          "- API Total Income:",
-          apiData.totalIncome || apiData.balance?.totalIncome
-        );
-        console.log(
-          "- API Total Expense:",
-          apiData.totalExpense || apiData.balance?.totalExpense
-        );
 
         // Extract balance info - support multiple formats
         let saldoAwal = 0;
         let saldoAkhir = 0;
 
         if (apiData.balance) {
-          // New format
           saldoAwal =
             apiData.balance.opening || apiData.balance.balanceStart || 0;
           saldoAkhir =
             apiData.balance.closing || apiData.balance.balanceEnd || 0;
         } else {
-          // Old format
           saldoAwal = apiData.saldoAwal || 0;
           saldoAkhir = apiData.saldoAkhir || 0;
         }
@@ -131,7 +97,6 @@ export const useFinanceReport = () => {
         // If saldoAkhir not provided, calculate it
         if (saldoAkhir === 0 || saldoAkhir === saldoAwal) {
           saldoAkhir = saldoAwal + manualTotalIncome - manualTotalExpense;
-          console.log("🧮 Calculated saldoAkhir:", saldoAkhir);
         }
 
         // Extract chart data - Enhanced support
@@ -140,8 +105,6 @@ export const useFinanceReport = () => {
         if (apiData.chartData && Array.isArray(apiData.chartData)) {
           chartData = apiData.chartData;
         } else if (incomes.length > 0 || expenses.length > 0) {
-          // Generate chart data from transactions
-          console.log("🔧 Generating chart data from transactions");
           chartData = generateChartDataFromTransactions(
             incomes,
             expenses,
@@ -149,13 +112,11 @@ export const useFinanceReport = () => {
           );
         }
 
-        console.log("📈 Chart data:", chartData.length, "points");
-
         const finalReportData = {
           incomes,
           expenses,
-          totalIncome: manualTotalIncome, // 🔧 Always use manual calculation
-          totalExpense: manualTotalExpense, // 🔧 Always use manual calculation
+          totalIncome: manualTotalIncome,
+          totalExpense: manualTotalExpense,
           saldoAwal,
           saldoAkhir,
           chartData,
@@ -167,18 +128,12 @@ export const useFinanceReport = () => {
           },
         };
 
-        console.log("✅ Final Report Data:");
-        console.log(finalReportData);
-
         setReportData(finalReportData);
         setLastFetchParams({ range, date, forceRefresh });
       } catch (err) {
         if (err.name === "AbortError") {
-          console.log("🔄 Request was cancelled");
           return; // Don't set error for cancelled requests
         }
-
-        console.error("❌ Failed to fetch report data:", err);
         setError("Gagal memuat data laporan. Silakan coba lagi.");
         setReportData({
           incomes: [],
@@ -197,15 +152,13 @@ export const useFinanceReport = () => {
     []
   );
 
-  // 🆕 Refresh current report dengan force refresh
   const refreshReport = useCallback(async () => {
     if (lastFetchParams) {
       const { range, date } = lastFetchParams;
-      await fetchReport(range, date, true); // Force refresh
+      await fetchReport(range, date, true);
     }
   }, [lastFetchParams, fetchReport]);
 
-  // 🆕 Get real-time report endpoint
   const fetchRealTimeReport = useCallback(async (type, options = {}) => {
     setLoading(true);
     setError(null);
@@ -218,17 +171,10 @@ export const useFinanceReport = () => {
       if (options.end) params.append("end", options.end);
 
       const url = `/finance/report/realtime?${params.toString()}`;
-      console.log(`🔄 Fetching real-time report: ${url}`);
-
       const { data } = await costumAPI.get(url);
 
-      // Process response sama seperti fetchReport
-      // ... (similar processing logic)
-
-      console.log("✅ Real-time report fetched");
       return data;
     } catch (err) {
-      console.error("❌ Failed to fetch real-time report:", err);
       setError("Gagal memuat laporan real-time");
       throw err;
     } finally {
@@ -253,10 +199,7 @@ const generateChartDataFromTransactions = (
   expenses,
   startingBalance
 ) => {
-  console.log("📈 Generating chart data from transactions");
-
   if (!incomes.length && !expenses.length) {
-    console.log("❌ No transactions for chart");
     return [];
   }
 
@@ -296,6 +239,5 @@ const generateChartDataFromTransactions = (
       };
     });
 
-  console.log("✅ Chart data generated:", chartData.length, "points");
   return chartData;
 };

@@ -61,17 +61,10 @@ function EventCalendar() {
         }));
 
         setEvents(processedEvents);
-        console.log("Loaded events:", processedEvents.length, "events");
-        console.log(
-          "Donation events:",
-          processedEvents.filter((e) => e.isDonationEvent).length
-        );
       } else {
-        console.error("API response not successful:", response.data);
         setEvents([]);
       }
     } catch (error) {
-      console.error("Error fetching events:", error);
       const errorMessage =
         error.response?.data?.message ||
         error.message ||
@@ -108,7 +101,6 @@ function EventCalendar() {
     }
 
     setFilteredEvents(filtered);
-    console.log("Filtered events:", filtered.length);
   }, [events, selectedCategory, favorites]);
 
   // Navigation functions
@@ -206,7 +198,6 @@ function EventCalendar() {
 
   const handleDonateToEvent = (event) => {
     // TODO: Implement donation modal
-    console.log("Opening donation modal for event:", event.title);
     alert(`Fitur donasi untuk "${event.title}" akan segera tersedia!`);
     // Nanti akan diganti dengan modal donasi
     // setSelectedDonationEvent(event);
@@ -242,8 +233,6 @@ function EventCalendar() {
       setIsRegistrationOpen(false);
       setRegistrationKegiatan(null);
     } catch (error) {
-      console.error("Registration error:", error);
-
       if (error.response?.status === 400) {
         const message = error.response.data.message;
         if (message.includes("penuh")) {

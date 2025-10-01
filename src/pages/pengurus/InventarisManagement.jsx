@@ -94,7 +94,6 @@ function InventarisAdmin() {
         setShowBorrowersModal(true);
       }
     } catch (error) {
-      console.error("Error fetching item borrowers:", error);
       alert(
         "Gagal memuat data peminjam: " +
           (error.response?.data?.message || error.message)
@@ -783,7 +782,16 @@ function InventarisAdmin() {
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
                         <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">
-                          Status
+                          Barang
+                        </th>
+                        <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">
+                          Kondisi
+                        </th>
+                        <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">
+                          Jumlah
+                        </th>
+                        <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">
+                          Status Peminjaman
                         </th>
                         <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">
                           Aksi

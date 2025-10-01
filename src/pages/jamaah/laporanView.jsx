@@ -81,8 +81,7 @@ function LaporanView() {
   useEffect(() => {
     const loadWeeklyData = async () => {
       try {
-        const today = getTodayLocalDate(); // Gunakan helper function
-        console.log("📅 Loading data for today:", today);
+        const today = getTodayLocalDate();
 
         setSelectedRange("weekly");
         await fetchBalance();
@@ -92,7 +91,7 @@ function LaporanView() {
         }, 500);
         clearErrors();
       } catch (error) {
-        console.error("Load weekly error:", error);
+        console.error(error);
       }
     };
     loadWeeklyData();
@@ -122,8 +121,7 @@ function LaporanView() {
   // Range change handler dengan tanggal hari ini
   const handleRangeChange = (newRange) => {
     setSelectedRange(newRange);
-    const today = getTodayLocalDate(); // Gunakan helper function
-    console.log("📅 Range changed, using today:", today);
+    const today = getTodayLocalDate();
     setFilter(newRange, today);
   };
 
@@ -139,7 +137,6 @@ function LaporanView() {
         alert("Gagal melakukan sinkronisasi: " + result.message);
       }
     } catch (error) {
-      console.error("Error syncing balance:", error);
       alert("Terjadi kesalahan saat sinkronisasi data");
     }
   };
@@ -147,23 +144,21 @@ function LaporanView() {
   // Force weekly refresh dengan tanggal hari ini
   const handleForceWeekly = async () => {
     try {
-      const today = getTodayLocalDate(); // Gunakan helper function
-      console.log("📅 Force weekly refresh for today:", today);
+      const today = getTodayLocalDate();
 
       setSelectedRange("weekly");
       setFilter("weekly", today);
       await fetchReport("weekly", today);
       setSuccessMessage("✅ Laporan mingguan berhasil dimuat!");
     } catch (error) {
-      console.error("Force weekly error:", error);
+      console.error(error);
     }
   };
 
   // PDF download handlers dengan tanggal hari ini
   const handlePDFDownload = (range = null, date = null) => {
     const downloadRange = range || currentRange || selectedRange;
-    const downloadDate = date || currentDate || getTodayLocalDate(); // Gunakan helper function
-    console.log("📅 PDF download for date:", downloadDate);
+    const downloadDate = date || currentDate || getTodayLocalDate();
     downloadPDF(downloadRange, downloadDate);
   };
 

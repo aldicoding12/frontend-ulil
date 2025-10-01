@@ -19,6 +19,8 @@ import {
   Plus,
   Loader2,
   AlertTriangle,
+  Upload,
+  File,
 } from "lucide-react";
 
 function InventarisView() {
@@ -35,6 +37,7 @@ function InventarisView() {
   const [totalItems, setTotalItems] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("081234567890"); // Ini bisa dari user context
   const [isVisible, setIsVisible] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null); // State untuk file yang diupload
 
   // Pagination
   const itemsPerPage = 8;
@@ -45,7 +48,7 @@ function InventarisView() {
     institution: "",
     borrowDate: "",
     returnDate: "",
-    documentUrl: "",
+    documentFile: null, // File object untuk upload
     notes: "",
   });
 
@@ -94,12 +97,9 @@ function InventarisView() {
         setTotalPages(response.data.totalPages || 1);
         setTotalItems(response.data.totalItems || 0);
       } else {
-        console.error("Unexpected API response:", response.data);
         setItems([]);
       }
     } catch (error) {
-      console.error("Error fetching items:", error);
-
       // Handle different error cases
       if (error.response?.status === 401) {
         alert("Sesi Anda telah berakhir. Silakan login kembali.");
@@ -161,12 +161,9 @@ function InventarisView() {
         setTotalPages(response.data.totalPages || 1);
         setTotalItems(response.data.totalItems || 0);
       } else {
-        console.error("Unexpected API response:", response.data);
         setBorrowingHistory([]);
       }
     } catch (error) {
-      console.error("Error fetching borrowing history:", error);
-
       if (error.response?.status === 401) {
         alert("Sesi Anda telah berakhir. Silakan login kembali.");
       } else {
@@ -182,6 +179,61 @@ function InventarisView() {
       setTotalItems(0);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handler untuk upload file - DIPERBAIKI
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      // Validasi tipe file - accept berbagai format dokumen
+      const allowedTypes = [
+        "application/pdf",
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        setErrors({
+          ...errors,
+          documentFile: "File harus berformat PDF, JPG, PNG, atau DOC/DOCX",
+        });
+        return;
+      }
+
+      // Validasi ukuran file (maksimal 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        setErrors({
+          ...errors,
+          documentFile: "Ukuran file maksimal 10MB",
+        });
+        return;
+      }
+
+      // Set file ke state
+      setBorrowForm({ ...borrowForm, documentFile: file });
+      setUploadedFile(file);
+
+      // Clear error jika ada
+      if (errors.documentFile) {
+        setErrors({ ...errors, documentFile: null });
+      }
+    }
+  };
+
+  // Fungsi untuk remove file
+  const removeFile = () => {
+    setBorrowForm({ ...borrowForm, documentFile: null });
+    setUploadedFile(null);
+    // Clear file input
+    const fileInput = document.getElementById("document-file");
+    if (fileInput) {
+      fileInput.value = "";
     }
   };
 
@@ -211,17 +263,16 @@ function InventarisView() {
       newErrors.returnDate = "Tanggal kembali harus setelah tanggal pinjam";
     }
 
-    if (!borrowForm.documentUrl.trim()) {
-      newErrors.documentUrl = "URL dokumen wajib diisi";
-    } else if (!/^https?:\/\/.+/.test(borrowForm.documentUrl)) {
-      newErrors.documentUrl = "URL tidak valid";
+    // Validasi file dokumen
+    if (!borrowForm.documentFile) {
+      newErrors.documentFile = "Dokumen peminjaman wajib diupload";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submit borrowing request to API
+  // Submit borrowing request to API - DIPERBAIKI
   const handleBorrowSubmit = async () => {
     if (!validateForm()) {
       return;
@@ -230,19 +281,31 @@ function InventarisView() {
     setLoading(true);
 
     try {
-      const borrowingData = {
-        borrowerName: borrowForm.borrowerName.trim(),
-        phoneNumber: borrowForm.phoneNumber.trim(),
-        institution: borrowForm.institution.trim() || undefined,
-        borrowDate: borrowForm.borrowDate,
-        returnDate: borrowForm.returnDate,
-        documentUrl: borrowForm.documentUrl.trim(),
-        notes: borrowForm.notes.trim() || undefined,
-      };
+      // Buat FormData untuk upload file
+      const formData = new FormData();
+      formData.append("borrowerName", borrowForm.borrowerName.trim());
+      formData.append("phoneNumber", borrowForm.phoneNumber.trim());
+      if (borrowForm.institution.trim()) {
+        formData.append("institution", borrowForm.institution.trim());
+      }
+      formData.append("borrowDate", borrowForm.borrowDate);
+      formData.append("returnDate", borrowForm.returnDate);
+
+      // PENTING: Gunakan nama field yang sesuai dengan backend (tidak ada 'File' di akhir)
+      formData.append("document", borrowForm.documentFile); // Sesuaikan dengan multer field name
+
+      if (borrowForm.notes.trim()) {
+        formData.append("notes", borrowForm.notes.trim());
+      }
 
       const response = await customAPI.post(
         `/inventory/items/${selectedItem._id}/borrow`,
-        borrowingData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
       if (response.data.message === "Permintaan peminjaman berhasil diajukan") {
@@ -257,11 +320,18 @@ function InventarisView() {
           institution: "",
           borrowDate: "",
           returnDate: "",
-          documentUrl: "",
+          documentFile: null,
           notes: "",
         });
+        setUploadedFile(null);
         setErrors({});
         setShowBorrowModal(false);
+
+        // Clear file input
+        const fileInput = document.getElementById("document-file");
+        if (fileInput) {
+          fileInput.value = "";
+        }
 
         // Refresh data
         await fetchAvailableItems();
@@ -269,8 +339,6 @@ function InventarisView() {
         throw new Error(response.data.message || "Gagal mengajukan permintaan");
       }
     } catch (error) {
-      console.error("Error submitting borrow request:", error);
-
       let errorMessage = "Gagal mengajukan permintaan peminjaman";
 
       if (error.response?.status === 400) {
@@ -280,6 +348,8 @@ function InventarisView() {
         errorMessage = "Barang tidak ditemukan";
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       alert(errorMessage);
@@ -299,7 +369,6 @@ function InventarisView() {
         throw new Error("Gagal mengambil detail barang");
       }
     } catch (error) {
-      console.error("Error fetching item details:", error);
       alert("Gagal memuat detail barang");
       return null;
     }
@@ -326,9 +395,10 @@ function InventarisView() {
       institution: "",
       borrowDate: "",
       returnDate: "",
-      documentUrl: "",
+      documentFile: null,
       notes: "",
     });
+    setUploadedFile(null);
     setErrors({});
     setShowBorrowModal(true);
   };
@@ -503,6 +573,21 @@ function InventarisView() {
         </button>
       </div>
     );
+  };
+
+  // Get file type icon
+  const getFileIcon = (file) => {
+    if (!file) return File;
+
+    if (file.type.includes("pdf")) {
+      return () => <div className="text-red-600">📄</div>;
+    } else if (file.type.includes("image")) {
+      return () => <div className="text-blue-600">🖼️</div>;
+    } else if (file.type.includes("word") || file.type.includes("document")) {
+      return () => <div className="text-blue-600">📝</div>;
+    }
+
+    return File;
   };
 
   const currentItems = getCurrentItems();
@@ -803,7 +888,8 @@ function InventarisView() {
                     }`}
                     style={{ transitionDelay: `${index * 100}ms` }}>
                     <div className="flex items-start space-x-4">
-                      <div className="relative">
+                      {/* Image */}
+                      <div className="flex-shrink-0">
                         <img
                           src={
                             history.itemImage ||
@@ -816,41 +902,48 @@ function InventarisView() {
                               "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400";
                           }}
                         />
-                        <div className="absolute -top-2 -right-2">
-                          {getStatusBadge(history.status)}
-                        </div>
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h3 className="font-bold text-lg text-gray-900">
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-4">
+                          {/* Left Content */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-lg text-gray-900 mb-2">
                               {history.itemName}
                             </h3>
-                            <p className="text-sm text-gray-500 mt-1">
-                              📅 Dipinjam: {formatDate(history.borrowDate)} -{" "}
-                              {formatDate(history.returnDate)}
-                            </p>
-                            {history.actualReturnDate && (
-                              <p className="text-sm text-green-600 mt-1">
-                                ✅ Dikembalikan:{" "}
-                                {formatDate(history.actualReturnDate)}
+                            <div className="space-y-1">
+                              <p className="text-sm text-gray-500">
+                                📅 Dipinjam: {formatDate(history.borrowDate)} -{" "}
+                                {formatDate(history.returnDate)}
                               </p>
-                            )}
-                            {history.rejectionReason && (
-                              <p className="text-sm text-red-600 mt-1">
-                                ❌ Alasan ditolak: {history.rejectionReason}
-                              </p>
-                            )}
-                            {history.institution && (
-                              <p className="text-sm text-gray-500 mt-1">
-                                🏢 Instansi: {history.institution}
-                              </p>
-                            )}
-                            {history.notes && (
-                              <p className="text-sm text-gray-500 mt-1">
-                                📝 Catatan: {history.notes}
-                              </p>
-                            )}
+                              {history.actualReturnDate && (
+                                <p className="text-sm text-green-600">
+                                  ✅ Dikembalikan:{" "}
+                                  {formatDate(history.actualReturnDate)}
+                                </p>
+                              )}
+                              {history.rejectionReason && (
+                                <p className="text-sm text-red-600">
+                                  ❌ Alasan ditolak: {history.rejectionReason}
+                                </p>
+                              )}
+                              {history.institution && (
+                                <p className="text-sm text-gray-500">
+                                  🏢 Instansi: {history.institution}
+                                </p>
+                              )}
+                              {history.notes && (
+                                <p className="text-sm text-gray-500">
+                                  📝 Catatan: {history.notes}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Right Content - Status Badge */}
+                          <div className="flex-shrink-0">
+                            {getStatusBadge(history.status)}
                           </div>
                         </div>
                       </div>
@@ -1080,40 +1173,84 @@ function InventarisView() {
                     </div>
                   </div>
 
+                  {/* File Upload Section - DIPERBAIKI */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       <FileText className="w-4 h-4 inline mr-1" />
-                      URL Dokumen/Surat *
+                      Upload Dokumen Peminjaman *
                     </label>
-                    <input
-                      type="url"
-                      required
-                      placeholder="https://drive.google.com/..."
-                      value={borrowForm.documentUrl}
-                      onChange={(e) => {
-                        setBorrowForm({
-                          ...borrowForm,
-                          documentUrl: e.target.value,
-                        });
-                        if (errors.documentUrl) {
-                          setErrors({ ...errors, documentUrl: null });
-                        }
-                      }}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
-                        errors.documentUrl
-                          ? "border-red-300 bg-red-50"
-                          : "border-gray-300"
-                      }`}
-                    />
-                    {errors.documentUrl && (
+
+                    {/* File Upload Area */}
+                    <div className="space-y-3">
+                      {!uploadedFile ? (
+                        <div
+                          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all hover:border-green-400 hover:bg-green-50 cursor-pointer ${
+                            errors.documentFile
+                              ? "border-red-300 bg-red-50"
+                              : "border-gray-300 bg-gray-50"
+                          }`}>
+                          <input
+                            type="file"
+                            id="document-file"
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                            onChange={handleFileUpload}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                          <div className="space-y-2">
+                            <Upload className="w-8 h-8 text-gray-400 mx-auto" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-700">
+                                Klik untuk upload dokumen
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                Atau drag & drop file di sini
+                              </p>
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              Format: PDF, JPG, PNG, DOC, DOCX | Maksimal: 10MB
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-white rounded-lg shadow-sm">
+                                {React.createElement(
+                                  getFileIcon(uploadedFile),
+                                  { className: "w-5 h-5" }
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">
+                                  {uploadedFile.name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {(uploadedFile.size / 1024 / 1024).toFixed(2)}{" "}
+                                  MB
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={removeFile}
+                              className="text-red-500 hover:text-red-700 p-1 hover:bg-red-100 rounded transition-colors">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {errors.documentFile && (
                       <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                         <AlertTriangle className="w-4 h-4" />
-                        {errors.documentUrl}
+                        {errors.documentFile}
                       </p>
                     )}
                     <p className="text-xs text-gray-500 mt-1">
-                      📎 Upload surat peminjaman ke Google Drive dan paste
-                      linknya
+                      📎 Upload surat peminjaman atau dokumen penunjang
+                      (maksimal 10MB)
                     </p>
                   </div>
 
@@ -1141,6 +1278,7 @@ function InventarisView() {
                         </p>
                         <ul className="text-amber-700 space-y-1">
                           <li>• Pastikan semua data yang dimasukkan benar</li>
+                          <li>• Upload dokumen pendukung peminjaman</li>
                           <li>• Permintaan akan diproses oleh admin</li>
                           <li>
                             • Anda akan dihubungi melalui nomor HP yang

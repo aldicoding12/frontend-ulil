@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import costumAPI from "../../api";
 
@@ -19,7 +20,6 @@ function BeritaView() {
       setBerita(sortedBerita);
       setTimeout(() => setIsLoading(false), 100);
     } catch (error) {
-      console.log(error);
       setIsLoading(false);
     }
   };

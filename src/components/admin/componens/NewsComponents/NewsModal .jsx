@@ -36,7 +36,6 @@ const SimpleTextEditor = ({
 
     onChange(newText);
 
-    // Restore cursor position
     setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(start + before.length, end + before.length);
@@ -126,7 +125,6 @@ const SimpleTextEditor = ({
         className="w-full min-h-[300px] p-4 border-0 focus:ring-0 focus:outline-none resize-none disabled:bg-gray-50 disabled:cursor-not-allowed"
         onKeyDown={(e) => {
           if (disabled) return;
-          // Keyboard shortcuts
           if (e.ctrlKey || e.metaKey) {
             switch (e.key) {
               case "b":
@@ -184,7 +182,6 @@ const NewsModal = ({ isOpen, onClose, onSubmit, editingNews, isLoading }) => {
     setImageFile(null);
     setErrors({});
 
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -205,7 +202,6 @@ const NewsModal = ({ isOpen, onClose, onSubmit, editingNews, isLoading }) => {
       newErrors.author = "Nama penulis wajib diisi";
     }
 
-    // Validasi gambar untuk berita baru
     if (!editingNews && !imageFile) {
       newErrors.image = "Gambar berita wajib diupload";
     }
@@ -215,142 +211,71 @@ const NewsModal = ({ isOpen, onClose, onSubmit, editingNews, isLoading }) => {
   };
 
   const handleImageChange = (e) => {
-    console.log("=== IMAGE CHANGE DEBUG ===");
-    console.log("Event target:", e.target);
-    console.log("Files:", e.target.files);
-    console.log("Files length:", e.target.files?.length);
-
     const file = e.target.files?.[0];
-    console.log("Selected file:", file);
 
     if (file) {
-      console.log("File details:", {
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        lastModified: file.lastModified,
-      });
-
-      // Validate image file
       const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
       if (!validTypes.includes(file.type)) {
-        console.error("❌ Invalid file type:", file.type);
         alert("Format gambar tidak valid. Gunakan JPG, PNG, atau GIF.");
-        // Reset file input
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
         return;
       }
 
-      // Check file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        console.error("❌ File too large:", file.size);
         alert("Ukuran gambar terlalu besar. Maksimal 5MB.");
-        // Reset file input
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
         return;
       }
 
-      console.log("✅ File validation passed, setting imageFile state");
       setImageFile(file);
 
-      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
-        console.log("✅ FileReader loaded, setting preview");
         setImagePreview(e.target.result);
       };
-      reader.onerror = (e) => {
-        console.error("❌ FileReader error:", e);
+      reader.onerror = () => {
         alert("Gagal membaca file gambar");
       };
       reader.readAsDataURL(file);
 
-      // Clear image error if exists
       if (errors.image) {
-        console.log("✅ Clearing image error");
         setErrors((prev) => ({ ...prev, image: undefined }));
       }
-    } else {
-      console.log("❌ No file selected");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("=== SUBMIT DEBUG ===");
-    console.log("editingNews:", editingNews);
-    console.log("imageFile:", imageFile);
-    console.log(
-      "imageFile details:",
-      imageFile
-        ? {
-            name: imageFile.name,
-            type: imageFile.type,
-            size: imageFile.size,
-            lastModified: imageFile.lastModified,
-          }
-        : "No file"
-    );
-    console.log("imagePreview:", imagePreview);
-
-    // Validasi form
     if (!validateForm()) {
-      console.log("❌ Form validation failed");
       return;
     }
 
     try {
-      // Siapkan FormData dengan benar
       const submitData = new FormData();
 
-      // Tambahkan data text
       submitData.append("title", formData.title.trim());
       submitData.append("content", formData.content.trim());
       submitData.append("author", formData.author.trim());
 
-      // Tambahkan file gambar jika ada
       if (imageFile) {
-        console.log("✅ Appending image file:", {
-          name: imageFile.name,
-          type: imageFile.type,
-          size: imageFile.size,
-        });
-        // Gunakan nama field yang konsisten dengan backend
         submitData.append("image", imageFile, imageFile.name);
       }
 
-      // Untuk edit, tambahkan ID jika diperlukan
       if (editingNews && editingNews.id) {
         submitData.append("id", editingNews.id.toString());
       }
 
-      // Debug: Periksa semua entries di FormData
-      console.log("📝 FormData entries:");
-      for (const [key, value] of submitData.entries()) {
-        if (value instanceof File) {
-          console.log(
-            `✅ ${key}: File(${value.name}, ${value.type}, ${value.size} bytes)`
-          );
-        } else {
-          console.log(`📄 ${key}: ${value}`);
-        }
-      }
-
-      // Validasi final sebelum submit
       if (!editingNews && !imageFile) {
         throw new Error("File gambar wajib untuk berita baru");
       }
 
-      console.log("🚀 Calling onSubmit with FormData");
       await onSubmit(submitData);
-      console.log("✅ onSubmit completed successfully");
     } catch (error) {
-      console.error("❌ Error in handleSubmit:", error);
       alert(
         error.message ||
           "Terjadi kesalahan saat menyimpan berita. Silakan coba lagi."
@@ -367,14 +292,12 @@ const NewsModal = ({ isOpen, onClose, onSubmit, editingNews, isLoading }) => {
   const removeImage = () => {
     setImagePreview("");
     setImageFile(null);
-    // Reset file input dengan ref
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
 
-    // Jika edit mode dan menghapus gambar, set flag untuk backend
     if (editingNews) {
-      setImagePreview(""); // Kosongkan preview untuk menandakan gambar dihapus
+      setImagePreview("");
     }
   };
 
@@ -504,23 +427,22 @@ const NewsModal = ({ isOpen, onClose, onSubmit, editingNews, isLoading }) => {
                     <div className="mt-2 space-y-1">
                       {imageFile && (
                         <div className="text-sm text-green-600 font-medium">
-                          ✓ File baru dipilih: {imageFile.name} (
+                          File baru dipilih: {imageFile.name} (
                           {(imageFile.size / 1024).toFixed(1)} KB)
                         </div>
                       )}
                       {editingNews && !imageFile && imagePreview && (
                         <div className="text-sm text-gray-600">
-                          📷 Menggunakan gambar yang sudah ada
+                          Menggunakan gambar yang sudah ada
                         </div>
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* Status Info untuk Edit Mode */}
                 {editingNews && !imagePreview && !imageFile && (
                   <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded-lg">
-                    ℹ️ Tidak ada gambar yang dipilih. Gambar lama akan tetap
+                    Tidak ada gambar yang dipilih. Gambar lama akan tetap
                     dipertahankan.
                   </div>
                 )}

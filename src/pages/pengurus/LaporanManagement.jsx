@@ -113,23 +113,15 @@ function LaporanManagement() {
 
   // 🚀 INITIAL LOAD - FORCE WEEKLY sebagai default dengan tanggal hari ini
   useEffect(() => {
-    console.log(
-      "🚀 LaporanManagement: Initial load - FORCING WEEKLY as default"
-    );
-
     const loadWeeklyData = async () => {
       try {
-        const today = getTodayLocalDate(); // Gunakan helper function
-        console.log("📅 FORCING Weekly range for admin with today:", today);
+        const today = getTodayLocalDate();
 
         // Load balance
         await fetchBalance();
-        console.log("✅ Balance loaded");
 
         // FORCE set filter to weekly + today
         setFilter("weekly", today);
-
-        console.log("✅ Weekly report forced for admin");
         clearErrors();
       } catch (error) {
         console.error("❌ Force weekly load error:", error);
@@ -166,20 +158,16 @@ function LaporanManagement() {
 
   // Handler untuk perubahan tanggal - Real-time update dengan tanggal hari ini
   const handleDateChange = (newDate) => {
-    console.log(`📅 Date changed to: ${newDate}`);
     setFilter(currentRange, newDate);
   };
 
   // Handler untuk perubahan range - ALWAYS PREFER WEEKLY dengan tanggal hari ini
   const handleRangeChange = (newRange) => {
-    console.log(`📊 Range changed to: ${newRange}`);
     const today = getTodayLocalDate(); // Gunakan helper function
 
     if (newRange === "weekly") {
-      console.log("📅 PRIORITIZING Weekly range for admin");
       setFilter("weekly", today);
     } else {
-      console.log(`📅 Setting ${newRange} range for admin`);
       setFilter(newRange, today);
     }
   };
@@ -187,7 +175,6 @@ function LaporanManagement() {
   // 🚀 CRUD HANDLERS dengan Real-time Update
 
   const handleEditIncome = (item) => {
-    console.log("Edit income:", item);
     if (!item) {
       alert("Data tidak valid untuk diedit");
       return;
@@ -201,14 +188,12 @@ function LaporanManagement() {
 
   const handleDeleteIncome = async (item) => {
     if (!item) {
-      console.error("Item tidak valid:", item);
       alert("Data tidak valid untuk dihapus.");
       return;
     }
 
     const itemId = item._id || item.id;
     if (!itemId) {
-      console.error("ID tidak ditemukan dalam item:", item);
       alert("ID tidak ditemukan.");
       return;
     }
@@ -227,21 +212,16 @@ function LaporanManagement() {
           setSuccessMessage(
             "✅ Pemasukan berhasil dihapus dan saldo terupdate!"
           );
-          console.log(
-            `💰 Saldo terbaru: ${formatCurrency(result.currentBalance)}`
-          );
         } else {
           alert("Terjadi kesalahan: " + result.message);
         }
       } catch (error) {
-        console.error("Gagal menghapus pemasukan:", error);
         alert("Terjadi kesalahan saat menghapus pemasukan: " + error.message);
       }
     }
   };
 
   const handleEditExpense = (item) => {
-    console.log("Edit expense:", item);
     if (!item) {
       alert("Data tidak valid untuk diedit");
       return;
@@ -255,14 +235,12 @@ function LaporanManagement() {
 
   const handleDeleteExpense = async (item) => {
     if (!item) {
-      console.error("Item tidak valid:", item);
       alert("Data tidak valid untuk dihapus.");
       return;
     }
 
     const itemId = item._id || item.id;
     if (!itemId) {
-      console.error("ID tidak ditemukan dalam item:", item);
       alert("ID tidak ditemukan.");
       return;
     }
@@ -281,14 +259,10 @@ function LaporanManagement() {
           setSuccessMessage(
             "✅ Pengeluaran berhasil dihapus dan saldo terupdate!"
           );
-          console.log(
-            `💰 Saldo terbaru: ${formatCurrency(result.currentBalance)}`
-          );
         } else {
           alert("Terjadi kesalahan: " + result.message);
         }
       } catch (error) {
-        console.error("Gagal menghapus pengeluaran:", error);
         alert("Terjadi kesalahan saat menghapus pengeluaran: " + error.message);
       }
     }
@@ -358,13 +332,6 @@ function LaporanManagement() {
       }
 
       if (result.success) {
-        console.log("🚀 Transaction saved successfully:", result.data);
-        console.log(
-          `💰 Real-time balance update: ${formatCurrency(
-            result.currentBalance
-          )}`
-        );
-
         // Reset modal state
         setEditingItem(null);
         setIsEditMode(false);

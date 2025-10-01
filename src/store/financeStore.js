@@ -101,8 +101,6 @@ export const useFinanceStore = create(
               balanceLoading: false,
               lastSyncTime: new Date(),
             });
-
-            console.log("✅ Balance fetched:", data.balance);
           } catch (error) {
             console.error("❌ Failed to fetch balance:", error);
             set({
@@ -125,8 +123,6 @@ export const useFinanceStore = create(
               syncStatus: "success",
               lastSyncTime: new Date(),
             });
-
-            console.log("✅ Balance synced:", data.balance);
 
             // Auto refresh report data setelah sync
             const { currentRange, currentDate } = get();
@@ -160,8 +156,6 @@ export const useFinanceStore = create(
             if (date) {
               url += `?date=${date}`;
             }
-
-            console.log(`📊 Fetching ${range} report for date: ${date}`);
             const { data } = await costumAPI.get(url);
 
             if (!data?.data) {
@@ -240,8 +234,6 @@ export const useFinanceStore = create(
               reportLoading: false,
               lastSyncTime: new Date(),
             });
-
-            console.log("✅ Report data fetched successfully");
           } catch (error) {
             console.error("❌ Failed to fetch report:", error);
             set({
@@ -272,8 +264,6 @@ export const useFinanceStore = create(
             await get().fetchReport(currentRange, currentDate);
 
             set({ transactionLoading: false });
-
-            console.log("✅ Income added successfully");
             return {
               success: true,
               data: data.data,
@@ -313,8 +303,6 @@ export const useFinanceStore = create(
             await get().fetchReport(currentRange, currentDate);
 
             set({ transactionLoading: false });
-
-            console.log("✅ Expense added successfully");
             return {
               success: true,
               data: data.data,
@@ -354,8 +342,6 @@ export const useFinanceStore = create(
             await get().fetchReport(currentRange, currentDate);
 
             set({ transactionLoading: false });
-
-            console.log("✅ Income updated successfully");
             return {
               success: true,
               data: data.data,
@@ -395,8 +381,6 @@ export const useFinanceStore = create(
             await get().fetchReport(currentRange, currentDate);
 
             set({ transactionLoading: false });
-
-            console.log("✅ Expense updated successfully");
             return {
               success: true,
               data: data.data,
@@ -433,8 +417,6 @@ export const useFinanceStore = create(
             await get().fetchReport(currentRange, currentDate);
 
             set({ transactionLoading: false });
-
-            console.log("✅ Income deleted successfully");
             return {
               success: true,
               message: data.message,
@@ -470,8 +452,6 @@ export const useFinanceStore = create(
             await get().fetchReport(currentRange, currentDate);
 
             set({ transactionLoading: false });
-
-            console.log("✅ Expense deleted successfully");
             return {
               success: true,
               message: data.message,

@@ -105,12 +105,6 @@ const PDFDownloadModal = ({
           throw new Error("Tipe laporan tidak valid");
       }
 
-      console.log(
-        `📄 Downloading ${selectedRange} PDF from:`,
-        endpoint,
-        params
-      );
-
       // Direct PDF download - server akan fetch data dan generate PDF
       const response = await costumAPI.get(endpoint, {
         params,
@@ -137,13 +131,9 @@ const PDFDownloadModal = ({
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      console.log(`✅ PDF ${selectedRange} berhasil diunduh: ${filename}`);
-
       // Close modal after successful download
       onClose();
     } catch (error) {
-      console.error("❌ Error downloading PDF:", error);
-
       // Better error handling
       if (error.response?.status === 404) {
         setError("Data laporan tidak ditemukan untuk periode yang dipilih");

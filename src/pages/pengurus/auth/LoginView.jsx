@@ -377,27 +377,6 @@ const LoginView = () => {
                 )}
               </button>
             </form>
-
-            {/* Divider */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <div className="text-center">
-                <p className="text-sm text-gray-500 mb-4">
-                  Akses berdasarkan role
-                </p>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <strong className="text-blue-700">Pengurus:</strong>
-                    <div className="text-blue-600">
-                      Dashboard admin + semua fitur
-                    </div>
-                  </div>
-                  <div className="p-2 bg-green-50 rounded-lg">
-                    <strong className="text-green-700">Jamaah:</strong>
-                    <div className="text-green-600">Fitur jamaah + profil</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 

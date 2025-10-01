@@ -12,7 +12,6 @@ const customAPI = axios.create({
 // Interceptor untuk request
 customAPI.interceptors.request.use(
   (config) => {
-    console.log("API Request:", config);
     return config;
   },
   (error) => {
@@ -24,7 +23,6 @@ customAPI.interceptors.request.use(
 // Interceptor untuk response
 customAPI.interceptors.response.use(
   (response) => {
-    console.log("API Response:", response);
     return response;
   },
   (error) => {
@@ -48,7 +46,6 @@ export const createIncome = async (incomeData) => {
       "/finance/incomes/create",
       incomeData
     );
-    console.log("Income created successfully:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error creating income:", error);
@@ -65,7 +62,6 @@ export const createExpense = async (expenseData) => {
       "/finance/expenses/create",
       expenseData
     );
-    console.log("Expense created successfully:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error creating expense:", error);
@@ -79,7 +75,6 @@ export const createExpense = async (expenseData) => {
 export const updateIncome = async (id, incomeData) => {
   try {
     const response = await customAPI.put(`/finance/incomes/${id}`, incomeData);
-    console.log("Income updated successfully:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error updating income:", error);
@@ -96,7 +91,6 @@ export const updateExpense = async (id, expenseData) => {
       `/finance/expenses/${id}`,
       expenseData
     );
-    console.log("Expense updated successfully:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error updating expense:", error);
@@ -110,7 +104,6 @@ export const updateExpense = async (id, expenseData) => {
 export const deleteIncome = async (id) => {
   try {
     const response = await customAPI.delete(`/finance/incomes/${id}`);
-    console.log("Income deleted successfully:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error deleting income:", error);
@@ -124,7 +117,6 @@ export const deleteIncome = async (id) => {
 export const deleteExpense = async (id) => {
   try {
     const response = await customAPI.delete(`/finance/expenses/${id}`);
-    console.log("Expense deleted successfully:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error deleting expense:", error);
