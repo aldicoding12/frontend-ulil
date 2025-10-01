@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://backend-ulil.vercel.app/api",
+        target: "http://localhost:3000",
       },
     },
   },

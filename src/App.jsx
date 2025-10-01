@@ -113,19 +113,11 @@ const router = createBrowserRouter([
       // 🟡 AUTHENTICATED ROUTES (Perlu login - jamaah + pengurus bisa akses)
       {
         path: "laporan",
-        element: (
-          <ProtectedRoute>
-            <LaporanView />
-          </ProtectedRoute>
-        ),
+        element: <LaporanView />,
       },
       {
         path: "donasi",
-        element: (
-          <ProtectedRoute>
-            <DonasiView />
-          </ProtectedRoute>
-        ),
+        element: <DonasiView />,
       },
     ],
   },

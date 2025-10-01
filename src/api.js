@@ -1,9 +1,13 @@
-// api.js - Perbaikan API functions
 import axios from "axios";
 
+// Deteksi environment
+const isDevelopment = import.meta.env.DEV;
+
 const customAPI = axios.create({
-  baseURL: "/api/ul/data", // Pastikan ini sesuai dengan backend routes
-  withCredentials: true, // ✅ CRITICAL: Include cookies in requests
+  baseURL: isDevelopment
+    ? "/api/ul/data" // Development: gunakan proxy
+    : "https://backend-ulil.vercel.app/api/ul/data", // Production: direct ke backend
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -30,16 +34,11 @@ customAPI.interceptors.response.use(
     if (error.response) {
       console.error("Error Response Data:", error.response.data);
       console.error("Error Response Status:", error.response.status);
-    } else if (error.request) {
-      console.error("No response received:", error.request);
-    } else {
-      console.error("Error message:", error.message);
     }
     return Promise.reject(error);
   }
 );
 
-// ✅ Function untuk create income
 export const createIncome = async (incomeData) => {
   try {
     const response = await customAPI.post(
@@ -55,7 +54,6 @@ export const createIncome = async (incomeData) => {
   }
 };
 
-// ✅ Function untuk create expense
 export const createExpense = async (expenseData) => {
   try {
     const response = await customAPI.post(
@@ -71,7 +69,6 @@ export const createExpense = async (expenseData) => {
   }
 };
 
-// ✅ Update income - DIPERBAIKI untuk konsistensi dengan baseURL
 export const updateIncome = async (id, incomeData) => {
   try {
     const response = await customAPI.put(`/finance/incomes/${id}`, incomeData);
@@ -84,7 +81,6 @@ export const updateIncome = async (id, incomeData) => {
   }
 };
 
-// ✅ Update expense - DIPERBAIKI untuk konsistensi dengan baseURL
 export const updateExpense = async (id, expenseData) => {
   try {
     const response = await customAPI.put(
@@ -100,7 +96,6 @@ export const updateExpense = async (id, expenseData) => {
   }
 };
 
-// ✅ Delete income - DIPERBAIKI untuk konsistensi dengan customAPI
 export const deleteIncome = async (id) => {
   try {
     const response = await customAPI.delete(`/finance/incomes/${id}`);
@@ -113,7 +108,6 @@ export const deleteIncome = async (id) => {
   }
 };
 
-// ✅ Delete expense - DIPERBAIKI untuk konsistensi dengan customAPI
 export const deleteExpense = async (id) => {
   try {
     const response = await customAPI.delete(`/finance/expenses/${id}`);
