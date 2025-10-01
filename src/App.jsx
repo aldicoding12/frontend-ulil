@@ -19,7 +19,7 @@ import Dashboard from "./pages/pengurus/Dashboard";
 import LaporanManagement from "./pages/pengurus/LaporanManagement";
 import BeritaManajement from "./pages/pengurus/BeritaManajement";
 import KagiatanManagement from "./pages/pengurus/KagiatanManagement";
-import DonasiManagement from "./pages/pengurus/donasiManagement";
+import DonasiManagement from "./pages/pengurus/DonasiManagement";
 import KontakManagement from "./pages/pengurus/KontakManagement";
 import InventarisAdmin from "./pages/pengurus/InventarisManagement";
 
