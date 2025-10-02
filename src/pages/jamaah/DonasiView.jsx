@@ -174,8 +174,8 @@ const DonorsListModal = ({ donation, isOpen, onClose }) => {
                             {donor.donorName || donor.name || "Anonim"}
                           </h3>
                           <p className="text-xs text-gray-500">
-                            {donor.createdAt
-                              ? new Date(donor.createdAt).toLocaleDateString(
+                            {donor.donatedAt
+                              ? new Date(donor.donatedAt).toLocaleDateString(
                                   "id-ID",
                                   {
                                     day: "numeric",

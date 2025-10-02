@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import costumAPI from "../../api";
 
 function BeritaView() {
@@ -204,8 +205,8 @@ function BeritaView() {
                       {item.content?.substring(0, 150)}...
                     </p>
                     <div className="flex justify-end">
-                      <a
-                        href={`/berita/${item._id}`}
+                      <Link
+                        to={`/berita/${item._id}`}
                         className="group/btn inline-flex items-center gap-2 text-green-600 font-semibold hover:text-green-700 transition-all duration-300">
                         <span>Baca Selengkapnya</span>
                         <svg
@@ -220,7 +221,7 @@ function BeritaView() {
                             d="M17 8l4 4m0 0l-4 4m4-4H3"
                           />
                         </svg>
-                      </a>
+                      </Link>
                     </div>
                   </div>
 
