@@ -13,6 +13,8 @@ import KegiatanView from "./pages/jamaah/KegiatanView";
 import DonasiView from "./pages/jamaah/DonasiView";
 import InventarisView from "./pages/jamaah/InventarisView";
 import DonationSuccess from "./pages/jamaah/DonationSuccess ";
+import Galeri from "./pages/jamaah/Galeri";
+import StrukturOrganisasi from "./pages/jamaah/StrukturOrganisasi";
 
 // Pages pengurus
 import Dashboard from "./pages/pengurus/Dashboard";
@@ -109,6 +111,14 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <Profilview />,
+      },
+      {
+        path: "galeri",
+        element: <Galeri />,
+      },
+      {
+        path: "struktur-organisasi",
+        element: <StrukturOrganisasi />,
       },
       // 🟡 AUTHENTICATED ROUTES (Perlu login - jamaah + pengurus bisa akses)
       {
