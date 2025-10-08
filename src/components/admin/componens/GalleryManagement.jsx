@@ -402,62 +402,13 @@ function GalleryManagement() {
                     <h4 className="font-semibold text-gray-900 line-clamp-2 flex-1">
                       {gallery.title}
                     </h4>
-                    <div className="relative ml-2">
-                      <button
-                        onClick={() => {
-                          const dropdown = document.getElementById(
-                            `dropdown-${gallery._id}`
-                          );
-                          dropdown.classList.toggle("hidden");
-                        }}
-                        className="text-gray-400 hover:text-gray-600 p-1">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                      <div
-                        id={`dropdown-${gallery._id}`}
-                        className="hidden absolute right-0 mt-1 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                        <button
-                          onClick={() => {
-                            document
-                              .getElementById(`dropdown-${gallery._id}`)
-                              .classList.add("hidden");
-                            openModal("view", gallery);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg">
-                          <Eye className="w-4 h-4" />
-                          Lihat
-                        </button>
-                        <button
-                          onClick={() => {
-                            document
-                              .getElementById(`dropdown-${gallery._id}`)
-                              .classList.add("hidden");
-                            openModal("edit", gallery);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                          <Edit2 className="w-4 h-4" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => {
-                            document
-                              .getElementById(`dropdown-${gallery._id}`)
-                              .classList.add("hidden");
-                            openModal("delete", gallery);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-lg">
-                          <Trash2 className="w-4 h-4" />
-                          Hapus
-                        </button>
-                      </div>
-                    </div>
                   </div>
 
                   <p className="text-sm text-gray-600 line-clamp-2 mb-3">
                     {gallery.description}
                   </p>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-3">
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getCategoryColor(
                         gallery.category
@@ -471,6 +422,26 @@ function GalleryManagement() {
                         ? new Date(gallery.date).toLocaleDateString("id-ID")
                         : ""}
                     </span>
+                  </div>
+
+                  <div className="flex gap-2 pt-3 border-t border-gray-100">
+                    <button
+                      onClick={() => openModal("view", gallery)}
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                      <Eye className="w-4 h-4" />
+                      Lihat
+                    </button>
+                    <button
+                      onClick={() => openModal("edit", gallery)}
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                      <Edit2 className="w-4 h-4" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => openModal("delete", gallery)}
+                      className="flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>
