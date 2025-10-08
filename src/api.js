@@ -6,7 +6,7 @@ const isDevelopment = import.meta.env.DEV;
 const customAPI = axios.create({
   baseURL: isDevelopment
     ? "/api/ul/data" // Development: gunakan proxy
-    : "https://backend-ulil-theta.vercel.app/api/ul/data", // Production: direct ke backend
+    : "https://backend-ulil.vercel.app/api/ul/data", // Production: direct ke backend
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
