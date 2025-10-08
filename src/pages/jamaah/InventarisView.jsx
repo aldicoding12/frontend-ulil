@@ -417,25 +417,29 @@ function InventarisView() {
       pending: {
         color: "bg-yellow-100 text-yellow-800 border-yellow-200",
         icon: Clock,
-        text: "⏳ Menunggu Persetujuan",
+        text: "⏳ Menunggu",
+        fullText: "⏳ Menunggu Persetujuan",
         description: "Permintaan sedang diproses admin",
       },
       approved: {
         color: "bg-blue-100 text-blue-800 border-blue-200",
         icon: CheckCircle,
-        text: "✅ Disetujui - Sedang Dipinjam",
+        text: "✅ Disetujui",
+        fullText: "✅ Disetujui - Sedang Dipinjam",
         description: "Barang sedang Anda pinjam",
       },
       rejected: {
         color: "bg-red-100 text-red-800 border-red-200",
         icon: XCircle,
-        text: "❌ Permintaan Ditolak",
+        text: "❌ Ditolak",
+        fullText: "❌ Permintaan Ditolak",
         description: "Permintaan tidak dapat disetujui",
       },
       returned: {
         color: "bg-green-100 text-green-800 border-green-200",
         icon: CheckCircle,
-        text: "🔄 Sudah Dikembalikan",
+        text: "🔄 Dikembalikan",
+        fullText: "🔄 Sudah Dikembalikan",
         description: "Peminjaman selesai",
       },
     };
@@ -444,13 +448,14 @@ function InventarisView() {
     const Icon = config.icon;
 
     return (
-      <div className="flex flex-col items-end">
+      <div className="flex flex-col items-start sm:items-end w-full sm:w-auto">
         <span
-          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border-2 ${config.color}`}>
-          <Icon className="w-3 h-3 mr-1" />
-          {config.text}
+          className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold border-2 ${config.color} whitespace-nowrap`}>
+          <Icon className="w-3 h-3 mr-1 flex-shrink-0" />
+          <span className="sm:hidden">{config.text}</span>
+          <span className="hidden sm:inline">{config.fullText}</span>
         </span>
-        <span className="text-xs text-gray-500 mt-1 text-right">
+        <span className="text-[10px] sm:text-xs text-gray-500 mt-1 text-left sm:text-right">
           {config.description}
         </span>
       </div>
@@ -489,13 +494,13 @@ function InventarisView() {
   }, [searchTerm]);
 
   const LoadingSkeleton = () => (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
       {[...Array(8)].map((_, index) => (
         <div
           key={index}
-          className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
-          <div className="w-full h-48 bg-gray-300"></div>
-          <div className="p-4 space-y-3">
+          className="bg-white rounded-xl md:rounded-2xl shadow-lg overflow-hidden animate-pulse">
+          <div className="w-full h-40 sm:h-48 bg-gray-300"></div>
+          <div className="p-3 sm:p-4 space-y-3">
             <div className="h-4 bg-gray-300 rounded w-3/4"></div>
             <div className="h-3 bg-gray-300 rounded"></div>
             <div className="h-3 bg-gray-300 rounded w-1/2"></div>
@@ -514,17 +519,17 @@ function InventarisView() {
     if (totalPages <= 1) return null;
 
     return (
-      <div className="flex justify-center items-center space-x-2 mt-12">
+      <div className="flex justify-center items-center gap-1 sm:gap-2 mt-8 md:mt-12 px-2">
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+          className={`px-2 sm:px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
             currentPage === 1
               ? "bg-gray-200 text-gray-400 cursor-not-allowed"
               : "bg-white text-green-600 hover:bg-green-50 hover:text-green-700 shadow-md hover:shadow-lg"
           }`}>
           <svg
-            className="w-5 h-5"
+            className="w-4 h-4 sm:w-5 sm:h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24">
@@ -541,7 +546,7 @@ function InventarisView() {
           <button
             key={page}
             onClick={() => handlePageChange(page)}
-            className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+            className={`px-2.5 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 ${
               currentPage === page
                 ? "bg-green-600 text-white shadow-lg"
                 : "bg-white text-green-600 hover:bg-green-50 hover:text-green-700 shadow-md hover:shadow-lg"
@@ -553,13 +558,13 @@ function InventarisView() {
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+          className={`px-2 sm:px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
             currentPage === totalPages
               ? "bg-gray-200 text-gray-400 cursor-not-allowed"
               : "bg-white text-green-600 hover:bg-green-50 hover:text-green-700 shadow-md hover:shadow-lg"
           }`}>
           <svg
-            className="w-5 h-5"
+            className="w-4 h-4 sm:w-5 sm:h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24">
@@ -595,22 +600,22 @@ function InventarisView() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50/30 to-gray-50">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-green-800 via-green-700 to-green-600 py-20">
+      <div className="relative overflow-hidden bg-gradient-to-r from-green-800 via-green-700 to-green-600 py-12 md:py-20">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div
-            className="absolute top-10 left-10 w-32 h-32 border-4 border-white rounded-full animate-spin"
+            className="absolute top-10 left-10 w-20 md:w-32 h-20 md:h-32 border-4 border-white rounded-full animate-spin"
             style={{ animationDuration: "20s" }}
           />
           <div
-            className="absolute bottom-10 right-10 w-24 h-24 border-4 border-white rounded-full animate-spin"
+            className="absolute bottom-10 right-10 w-16 md:w-24 h-16 md:h-24 border-4 border-white rounded-full animate-spin"
             style={{ animationDuration: "15s", animationDirection: "reverse" }}
           />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
           <h1
-            className={`text-5xl md:text-6xl font-bold text-white mb-6 transform transition-all duration-1000 ${
+            className={`text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 md:mb-6 transform transition-all duration-1000 ${
               isVisible
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
@@ -618,12 +623,12 @@ function InventarisView() {
             📦 INVENTARIS
             <span className="block text-green-200 mt-2 relative">
               MASJID
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-white rounded-full mt-2"></div>
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 md:w-32 h-1 bg-white rounded-full mt-2"></div>
             </span>
           </h1>
 
           <p
-            className={`text-xl text-green-100 mb-8 transform transition-all duration-1000 delay-300 ${
+            className={`text-sm md:text-xl text-green-100 mb-6 md:mb-8 px-4 transform transition-all duration-1000 delay-300 ${
               isVisible
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
@@ -633,37 +638,39 @@ function InventarisView() {
 
           {/* Tab Navigation */}
           <div
-            className={`flex justify-center space-x-4 mb-8 transform transition-all duration-1000 delay-500 ${
+            className={`flex justify-center gap-2 md:gap-4 mb-6 md:mb-8 px-4 transform transition-all duration-1000 delay-500 ${
               isVisible
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
             }`}>
             <button
               onClick={() => setActiveTab("browse")}
-              className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
+              className={`px-4 md:px-6 py-2.5 md:py-3 rounded-full text-sm md:text-base font-medium transition-all duration-300 flex items-center gap-1.5 md:gap-2 ${
                 activeTab === "browse"
                   ? "bg-white text-green-600 shadow-lg"
                   : "bg-white/20 text-white hover:bg-white/30"
               }`}>
-              <Package className="w-5 h-5 inline mr-2" />
-              Lihat Barang
+              <Package className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden sm:inline">Lihat Barang</span>
+              <span className="sm:hidden">Barang</span>
             </button>
             <button
               onClick={() => setActiveTab("history")}
-              className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
+              className={`px-4 md:px-6 py-2.5 md:py-3 rounded-full text-sm md:text-base font-medium transition-all duration-300 flex items-center gap-1.5 md:gap-2 ${
                 activeTab === "history"
                   ? "bg-white text-green-600 shadow-lg"
                   : "bg-white/20 text-white hover:bg-white/30"
               }`}>
-              <History className="w-5 h-5 inline mr-2" />
-              Riwayat Peminjaman
+              <History className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden sm:inline">Riwayat Peminjaman</span>
+              <span className="sm:hidden">Riwayat</span>
             </button>
           </div>
 
           {/* Search Bar - Only show in browse tab */}
           {activeTab === "browse" && (
             <div
-              className={`max-w-md mx-auto transform transition-all duration-1000 delay-700 ${
+              className={`max-w-md mx-auto px-4 transform transition-all duration-1000 delay-700 ${
                 isVisible
                   ? "translate-y-0 opacity-100"
                   : "translate-y-10 opacity-0"
@@ -674,10 +681,10 @@ function InventarisView() {
                   placeholder="Cari barang inventaris..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-6 py-4 rounded-full border-2 border-white/20 bg-white/10 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:border-white/40 focus:bg-white/20 transition-all duration-300"
+                  className="w-full px-4 md:px-6 py-3 md:py-4 rounded-full border-2 border-white/20 bg-white/10 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:border-white/40 focus:bg-white/20 transition-all duration-300 text-sm md:text-base"
                 />
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                  <Search className="w-6 h-6 text-white/70" />
+                <div className="absolute right-3 md:right-4 top-1/2 transform -translate-y-1/2">
+                  <Search className="w-5 h-5 md:w-6 md:h-6 text-white/70" />
                 </div>
               </div>
             </div>
@@ -686,7 +693,7 @@ function InventarisView() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-16">
+      <div className="max-w-7xl mx-auto px-3 md:px-4 py-8 md:py-16">
         {/* Browse Items Tab */}
         {activeTab === "browse" && (
           <div>
@@ -695,9 +702,9 @@ function InventarisView() {
             ) : (
               <>
                 {/* Results Info */}
-                <div className="mb-8 text-center">
+                <div className="mb-6 md:mb-8 text-center px-4">
                   {searchTerm ? (
-                    <p className="text-gray-600">
+                    <p className="text-sm md:text-base text-gray-600">
                       Menampilkan {totalItems} hasil untuk "
                       <span className="font-semibold text-green-600">
                         {searchTerm}
@@ -706,18 +713,23 @@ function InventarisView() {
                     </p>
                   ) : (
                     <div className="space-y-2">
-                      <p className="text-gray-600">
+                      <p className="text-sm md:text-base text-gray-600">
                         Menampilkan {currentItems.length} dari {totalItems}{" "}
                         barang inventaris
                       </p>
-                      <div className="flex justify-center items-center space-x-2 text-sm text-gray-500">
+                      <div className="flex justify-center items-center gap-2 text-xs md:text-sm text-gray-500">
                         <span>
                           Halaman {currentPage} dari {totalPages}
                         </span>
                         {totalPages > 1 && (
                           <>
                             <span>•</span>
-                            <span>{itemsPerPage} barang per halaman</span>
+                            <span className="hidden sm:inline">
+                              {itemsPerPage} barang per halaman
+                            </span>
+                            <span className="sm:hidden">
+                              {itemsPerPage}/hal
+                            </span>
                           </>
                         )}
                       </div>
@@ -726,18 +738,18 @@ function InventarisView() {
                 </div>
 
                 {/* Items Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
                   {currentItems.map((item, index) => (
                     <div
                       key={item._id}
-                      className={`group bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/10 ${
+                      className={`group bg-white rounded-xl md:rounded-2xl shadow-lg overflow-hidden transform transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/10 ${
                         isVisible
                           ? "translate-y-0 opacity-100"
                           : "translate-y-10 opacity-0"
                       }`}
                       style={{ transitionDelay: `${index * 100}ms` }}>
                       {/* Image Container */}
-                      <div className="relative overflow-hidden h-48">
+                      <div className="relative overflow-hidden h-40 sm:h-48">
                         <img
                           src={
                             item.imageUrl ||
@@ -755,7 +767,7 @@ function InventarisView() {
 
                         {/* Condition Badge */}
                         <div
-                          className={`absolute top-4 left-4 px-2 py-1 rounded-full text-xs font-medium shadow-lg ${
+                          className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium shadow-lg ${
                             item.condition === "good"
                               ? "bg-green-500 text-white"
                               : item.condition === "needs_repair"
@@ -765,27 +777,27 @@ function InventarisView() {
                           {item.condition === "good"
                             ? "✓ Baik"
                             : item.condition === "needs_repair"
-                            ? "⚠ Perlu Perbaikan"
+                            ? "⚠ Perbaikan"
                             : "✗ Rusak"}
                         </div>
 
                         {/* Available Badge */}
-                        <div className="absolute top-4 right-4 bg-green-600 text-white px-2 py-1 rounded-full text-xs font-medium shadow-lg">
+                        <div className="absolute top-2 right-2 bg-green-600 text-white px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium shadow-lg">
                           📊 {item.currentlyAvailable}/{item.quantity}
                         </div>
                       </div>
 
                       {/* Content */}
-                      <div className="p-4 space-y-3">
-                        <h3 className="font-bold text-lg text-gray-800 group-hover:text-green-600 transition-colors duration-300">
+                      <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+                        <h3 className="font-bold text-base sm:text-lg text-gray-800 group-hover:text-green-600 transition-colors duration-300 line-clamp-2">
                           {item.itemName}
                         </h3>
 
-                        <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+                        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-2">
                           {item.description || "Tidak ada deskripsi"}
                         </p>
 
-                        <div className="text-sm text-gray-500">
+                        <div className="text-xs sm:text-sm text-gray-500">
                           <span className="font-medium">Status: </span>
                           <span
                             className={
@@ -798,33 +810,34 @@ function InventarisView() {
                             {!item.isLendable
                               ? "Tidak dapat dipinjam"
                               : item.currentlyAvailable > 0
-                              ? `${item.currentlyAvailable} unit tersedia`
-                              : "Sedang dipinjam semua"}
+                              ? `${item.currentlyAvailable} tersedia`
+                              : "Dipinjam semua"}
                           </span>
                         </div>
 
                         <div className="flex gap-2 pt-2">
                           <button
                             onClick={() => openDetailModal(item)}
-                            className="flex-1 flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300">
-                            <Eye className="w-4 h-4 mr-1" />
-                            Detail
+                            className="flex-1 flex items-center justify-center px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300">
+                            <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                            <span className="hidden sm:inline">Detail</span>
+                            <span className="sm:hidden">Info</span>
                           </button>
                           <button
                             onClick={() => openBorrowModal(item)}
                             disabled={
                               item.currentlyAvailable <= 0 || !item.isLendable
                             }
-                            className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                            className={`flex-1 flex items-center justify-center px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
                               item.currentlyAvailable > 0 && item.isLendable
                                 ? "bg-green-600 text-white hover:bg-green-700 shadow-md hover:shadow-lg"
                                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
                             }`}>
-                            <Plus className="w-4 h-4 mr-1" />
+                            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                             {!item.isLendable
-                              ? "Tidak Dipinjamkan"
-                              : item.currentlyAvailable <= 0
                               ? "Tidak Tersedia"
+                              : item.currentlyAvailable <= 0
+                              ? "Habis"
                               : "Pinjam"}
                           </button>
                         </div>
@@ -841,14 +854,14 @@ function InventarisView() {
 
                 {/* Empty State */}
                 {items.length === 0 && !loading && (
-                  <div className="text-center py-16">
-                    <div className="text-6xl mb-4">📦</div>
-                    <h3 className="text-2xl font-bold text-gray-600 mb-2">
+                  <div className="text-center py-12 md:py-16">
+                    <div className="text-5xl md:text-6xl mb-4">📦</div>
+                    <h3 className="text-xl md:text-2xl font-bold text-gray-600 mb-2">
                       {searchTerm
                         ? "Barang tidak ditemukan"
                         : "Belum ada inventaris"}
                     </h3>
-                    <p className="text-gray-500">
+                    <p className="text-sm md:text-base text-gray-500">
                       {searchTerm
                         ? "Coba kata kunci lain untuk mencari barang"
                         : "Inventaris akan segera ditambahkan oleh admin"}
@@ -862,12 +875,12 @@ function InventarisView() {
 
         {/* History Tab */}
         {activeTab === "history" && (
-          <div className="bg-white rounded-2xl shadow-lg">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">
+          <div className="bg-white rounded-xl md:rounded-2xl shadow-lg">
+            <div className="px-4 md:px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900">
                 📋 Riwayat Peminjaman
               </h2>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-xs md:text-sm text-gray-500 mt-1">
                 Nomor HP: {phoneNumber}
               </p>
             </div>
@@ -875,28 +888,30 @@ function InventarisView() {
               {loading ? (
                 <div className="p-6 text-center">
                   <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-green-600" />
-                  <p className="text-gray-500">Memuat riwayat peminjaman...</p>
+                  <p className="text-gray-500 text-sm md:text-base">
+                    Memuat riwayat peminjaman...
+                  </p>
                 </div>
               ) : borrowingHistory.length > 0 ? (
                 borrowingHistory.map((history, index) => (
                   <div
                     key={history._id}
-                    className={`p-6 hover:bg-gray-50 transition-all duration-300 ${
+                    className={`p-3 md:p-6 hover:bg-gray-50 transition-all duration-300 ${
                       isVisible
                         ? "translate-y-0 opacity-100"
                         : "translate-y-10 opacity-0"
                     }`}
                     style={{ transitionDelay: `${index * 100}ms` }}>
-                    <div className="flex items-start space-x-4">
+                    <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                       {/* Image */}
-                      <div className="flex-shrink-0">
+                      <div className="flex-shrink-0 w-full sm:w-auto">
                         <img
                           src={
                             history.itemImage ||
                             "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400"
                           }
                           alt={history.itemName}
-                          className="w-20 h-20 rounded-xl object-cover shadow-md"
+                          className="w-full sm:w-16 md:w-20 h-32 sm:h-16 md:h-20 rounded-lg md:rounded-xl object-cover shadow-md"
                           onError={(e) => {
                             e.target.src =
                               "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400";
@@ -905,45 +920,46 @@ function InventarisView() {
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4">
-                          {/* Left Content */}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-lg text-gray-900 mb-2">
+                      <div className="flex-1 min-w-0 w-full">
+                        <div className="space-y-3">
+                          {/* Header with status */}
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                            <h3 className="font-bold text-base md:text-lg text-gray-900">
                               {history.itemName}
                             </h3>
-                            <div className="space-y-1">
-                              <p className="text-sm text-gray-500">
-                                📅 Dipinjam: {formatDate(history.borrowDate)} -{" "}
-                                {formatDate(history.returnDate)}
-                              </p>
-                              {history.actualReturnDate && (
-                                <p className="text-sm text-green-600">
-                                  ✅ Dikembalikan:{" "}
-                                  {formatDate(history.actualReturnDate)}
-                                </p>
-                              )}
-                              {history.rejectionReason && (
-                                <p className="text-sm text-red-600">
-                                  ❌ Alasan ditolak: {history.rejectionReason}
-                                </p>
-                              )}
-                              {history.institution && (
-                                <p className="text-sm text-gray-500">
-                                  🏢 Instansi: {history.institution}
-                                </p>
-                              )}
-                              {history.notes && (
-                                <p className="text-sm text-gray-500">
-                                  📝 Catatan: {history.notes}
-                                </p>
-                              )}
+                            {/* Status Badge - Mobile Optimized */}
+                            <div className="self-start sm:self-auto">
+                              {getStatusBadge(history.status)}
                             </div>
                           </div>
 
-                          {/* Right Content - Status Badge */}
-                          <div className="flex-shrink-0">
-                            {getStatusBadge(history.status)}
+                          {/* Details */}
+                          <div className="space-y-1.5">
+                            <p className="text-xs md:text-sm text-gray-500 break-words">
+                              📅 Dipinjam: {formatDate(history.borrowDate)} -{" "}
+                              {formatDate(history.returnDate)}
+                            </p>
+                            {history.actualReturnDate && (
+                              <p className="text-xs md:text-sm text-green-600">
+                                ✅ Dikembalikan:{" "}
+                                {formatDate(history.actualReturnDate)}
+                              </p>
+                            )}
+                            {history.rejectionReason && (
+                              <p className="text-xs md:text-sm text-red-600 break-words">
+                                ❌ Alasan ditolak: {history.rejectionReason}
+                              </p>
+                            )}
+                            {history.institution && (
+                              <p className="text-xs md:text-sm text-gray-500 break-words">
+                                🏢 Instansi: {history.institution}
+                              </p>
+                            )}
+                            {history.notes && (
+                              <p className="text-xs md:text-sm text-gray-500 break-words">
+                                📝 Catatan: {history.notes}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -951,12 +967,12 @@ function InventarisView() {
                   </div>
                 ))
               ) : (
-                <div className="p-12 text-center">
-                  <div className="text-6xl mb-4">📋</div>
-                  <h3 className="text-2xl font-bold text-gray-600 mb-2">
+                <div className="p-8 md:p-12 text-center">
+                  <div className="text-5xl md:text-6xl mb-4">📋</div>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-600 mb-2">
                     Belum ada riwayat peminjaman
                   </h3>
-                  <p className="text-gray-500">
+                  <p className="text-sm md:text-base text-gray-500">
                     Riwayat peminjaman akan muncul di sini setelah Anda meminjam
                     barang
                   </p>
@@ -966,7 +982,7 @@ function InventarisView() {
 
             {/* Pagination for history */}
             {activeTab === "history" && totalPages > 1 && (
-              <div className="p-6 border-t border-gray-200">
+              <div className="p-4 md:p-6 border-t border-gray-200">
                 <Pagination />
               </div>
             )}
@@ -978,19 +994,19 @@ function InventarisView() {
         {showBorrowModal && selectedItem && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">
+              <div className="p-4 md:p-6">
+                <div className="flex items-center justify-between mb-4 md:mb-6">
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                     📝 Ajukan Peminjaman
                   </h2>
                   <button
                     onClick={() => setShowBorrowModal(false)}
                     className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
-                    <X className="w-6 h-6" />
+                    <X className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
                 </div>
 
-                <div className="mb-6 p-4 bg-green-50 rounded-xl border border-green-200">
+                <div className="mb-4 md:mb-6 p-3 md:p-4 bg-green-50 rounded-xl border border-green-200">
                   <div className="flex items-center space-x-3">
                     <img
                       src={
@@ -998,17 +1014,17 @@ function InventarisView() {
                         "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400"
                       }
                       alt={selectedItem.itemName}
-                      className="w-16 h-16 rounded-lg object-cover"
+                      className="w-12 h-12 md:w-16 md:h-16 rounded-lg object-cover"
                       onError={(e) => {
                         e.target.src =
                           "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400";
                       }}
                     />
                     <div>
-                      <h3 className="font-bold text-gray-900">
+                      <h3 className="font-bold text-sm md:text-base text-gray-900">
                         {selectedItem.itemName}
                       </h3>
-                      <p className="text-sm text-green-600">
+                      <p className="text-xs md:text-sm text-green-600">
                         📊 Tersedia: {selectedItem.currentlyAvailable} unit
                       </p>
                     </div>
@@ -1017,10 +1033,10 @@ function InventarisView() {
 
                 <form
                   onSubmit={(e) => e.preventDefault()}
-                  className="space-y-4">
+                  className="space-y-3 md:space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <User className="w-4 h-4 inline mr-1" />
+                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
+                      <User className="w-3 h-3 md:w-4 md:h-4 inline mr-1" />
                       Nama Peminjam *
                     </label>
                     <input
@@ -1036,7 +1052,7 @@ function InventarisView() {
                           setErrors({ ...errors, borrowerName: null });
                         }
                       }}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
                         errors.borrowerName
                           ? "border-red-300 bg-red-50"
                           : "border-gray-300"
@@ -1044,16 +1060,16 @@ function InventarisView() {
                       placeholder="Masukkan nama lengkap"
                     />
                     {errors.borrowerName && (
-                      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                        <AlertTriangle className="w-4 h-4" />
+                      <p className="mt-1 text-xs md:text-sm text-red-600 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3 md:w-4 md:h-4" />
                         {errors.borrowerName}
                       </p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <Phone className="w-4 h-4 inline mr-1" />
+                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
+                      <Phone className="w-3 h-3 md:w-4 md:h-4 inline mr-1" />
                       Nomor HP *
                     </label>
                     <input
@@ -1069,7 +1085,7 @@ function InventarisView() {
                           setErrors({ ...errors, phoneNumber: null });
                         }
                       }}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
                         errors.phoneNumber
                           ? "border-red-300 bg-red-50"
                           : "border-gray-300"
@@ -1077,16 +1093,16 @@ function InventarisView() {
                       placeholder="08xxxxxxxxxx"
                     />
                     {errors.phoneNumber && (
-                      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                        <AlertTriangle className="w-4 h-4" />
+                      <p className="mt-1 text-xs md:text-sm text-red-600 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3 md:w-4 md:h-4" />
                         {errors.phoneNumber}
                       </p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <Building className="w-4 h-4 inline mr-1" />
+                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
+                      <Building className="w-3 h-3 md:w-4 md:h-4 inline mr-1" />
                       Instansi/Organisasi
                     </label>
                     <input
@@ -1098,22 +1114,22 @@ function InventarisView() {
                           institution: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                      className="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                       placeholder="Nama instansi (opsional)"
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2 md:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        <Calendar className="w-4 h-4 inline mr-1" />
+                      <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
+                        <Calendar className="w-3 h-3 md:w-4 md:h-4 inline mr-1" />
                         Tanggal Pinjam *
                       </label>
                       <input
                         type="date"
                         required
                         value={borrowForm.borrowDate}
-                        min={new Date().toISOString().split("T")[0]} // Minimum today
+                        min={new Date().toISOString().split("T")[0]}
                         onChange={(e) => {
                           setBorrowForm({
                             ...borrowForm,
@@ -1123,22 +1139,22 @@ function InventarisView() {
                             setErrors({ ...errors, borrowDate: null });
                           }
                         }}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
+                        className={`w-full px-2 md:px-4 py-2 md:py-3 text-xs md:text-base border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
                           errors.borrowDate
                             ? "border-red-300 bg-red-50"
                             : "border-gray-300"
                         }`}
                       />
                       {errors.borrowDate && (
-                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                          <AlertTriangle className="w-4 h-4" />
+                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" />
                           {errors.borrowDate}
                         </p>
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        <Calendar className="w-4 h-4 inline mr-1" />
+                      <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
+                        <Calendar className="w-3 h-3 md:w-4 md:h-4 inline mr-1" />
                         Tanggal Kembali *
                       </label>
                       <input
@@ -1158,25 +1174,25 @@ function InventarisView() {
                             setErrors({ ...errors, returnDate: null });
                           }
                         }}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
+                        className={`w-full px-2 md:px-4 py-2 md:py-3 text-xs md:text-base border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
                           errors.returnDate
                             ? "border-red-300 bg-red-50"
                             : "border-gray-300"
                         }`}
                       />
                       {errors.returnDate && (
-                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                          <AlertTriangle className="w-4 h-4" />
+                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" />
                           {errors.returnDate}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  {/* File Upload Section - DIPERBAIKI */}
+                  {/* File Upload Section */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <FileText className="w-4 h-4 inline mr-1" />
+                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
+                      <FileText className="w-3 h-3 md:w-4 md:h-4 inline mr-1" />
                       Upload Dokumen Peminjaman *
                     </label>
 
@@ -1184,7 +1200,7 @@ function InventarisView() {
                     <div className="space-y-3">
                       {!uploadedFile ? (
                         <div
-                          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all hover:border-green-400 hover:bg-green-50 cursor-pointer ${
+                          className={`relative border-2 border-dashed rounded-lg p-4 md:p-6 text-center transition-all hover:border-green-400 hover:bg-green-50 cursor-pointer ${
                             errors.documentFile
                               ? "border-red-300 bg-red-50"
                               : "border-gray-300 bg-gray-50"
@@ -1197,35 +1213,35 @@ function InventarisView() {
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           />
                           <div className="space-y-2">
-                            <Upload className="w-8 h-8 text-gray-400 mx-auto" />
+                            <Upload className="w-6 h-6 md:w-8 md:h-8 text-gray-400 mx-auto" />
                             <div>
-                              <p className="text-sm font-medium text-gray-700">
+                              <p className="text-xs md:text-sm font-medium text-gray-700">
                                 Klik untuk upload dokumen
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-[10px] md:text-xs text-gray-500">
                                 Atau drag & drop file di sini
                               </p>
                             </div>
-                            <div className="text-xs text-gray-400">
-                              Format: PDF, JPG, PNG, DOC, DOCX | Maksimal: 10MB
+                            <div className="text-[10px] md:text-xs text-gray-400">
+                              Format: PDF, JPG, PNG, DOC, DOCX | Maks: 10MB
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 md:p-4">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <div className="p-2 bg-white rounded-lg shadow-sm">
+                            <div className="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0">
+                              <div className="p-2 bg-white rounded-lg shadow-sm flex-shrink-0">
                                 {React.createElement(
                                   getFileIcon(uploadedFile),
-                                  { className: "w-5 h-5" }
+                                  { className: "w-4 h-4 md:w-5 md:h-5" }
                                 )}
                               </div>
-                              <div>
-                                <p className="text-sm font-medium text-gray-900">
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs md:text-sm font-medium text-gray-900 truncate">
                                   {uploadedFile.name}
                                 </p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-[10px] md:text-xs text-gray-500">
                                   {(uploadedFile.size / 1024 / 1024).toFixed(2)}{" "}
                                   MB
                                 </p>
@@ -1234,7 +1250,7 @@ function InventarisView() {
                             <button
                               type="button"
                               onClick={removeFile}
-                              className="text-red-500 hover:text-red-700 p-1 hover:bg-red-100 rounded transition-colors">
+                              className="text-red-500 hover:text-red-700 p-1 hover:bg-red-100 rounded transition-colors flex-shrink-0">
                               <X className="w-4 h-4" />
                             </button>
                           </div>
@@ -1243,19 +1259,19 @@ function InventarisView() {
                     </div>
 
                     {errors.documentFile && (
-                      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                        <AlertTriangle className="w-4 h-4" />
+                      <p className="mt-1 text-xs md:text-sm text-red-600 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3 md:w-4 md:h-4" />
                         {errors.documentFile}
                       </p>
                     )}
-                    <p className="text-xs text-gray-500 mt-1">
-                      📎 Upload surat peminjaman atau dokumen penunjang
-                      (maksimal 10MB)
+                    <p className="text-[10px] md:text-xs text-gray-500 mt-1">
+                      📎 Upload surat peminjaman atau dokumen penunjang (maks
+                      10MB)
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                       💬 Catatan
                     </label>
                     <textarea
@@ -1264,15 +1280,15 @@ function InventarisView() {
                       onChange={(e) =>
                         setBorrowForm({ ...borrowForm, notes: e.target.value })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none"
+                      className="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none"
                       placeholder="Catatan tambahan (opsional)"
                     />
                   </div>
 
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 md:p-4">
                     <div className="flex">
-                      <AlertTriangle className="w-5 h-5 text-amber-500 mr-3 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm">
+                      <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-amber-500 mr-2 md:mr-3 flex-shrink-0 mt-0.5" />
+                      <div className="text-xs md:text-sm">
                         <p className="text-amber-800 font-medium mb-1">
                           ⚠️ Perhatian:
                         </p>
@@ -1292,19 +1308,19 @@ function InventarisView() {
                     </div>
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex gap-2 md:gap-3 pt-4">
                     <button
                       type="button"
                       onClick={() => setShowBorrowModal(false)}
                       disabled={loading}
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300 disabled:opacity-50">
+                      className="flex-1 px-3 md:px-4 py-2.5 md:py-3 border border-gray-300 rounded-lg text-xs md:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300 disabled:opacity-50">
                       ❌ Batal
                     </button>
                     <button
                       type="button"
                       onClick={handleBorrowSubmit}
                       disabled={loading}
-                      className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg">
+                      className="flex-1 px-3 md:px-4 py-2.5 md:py-3 bg-green-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg">
                       {loading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
@@ -1322,34 +1338,34 @@ function InventarisView() {
         {showDetailModal && selectedItem && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">
+              <div className="p-4 md:p-6">
+                <div className="flex items-center justify-between mb-4 md:mb-6">
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                     🔍 Detail Barang
                   </h2>
                   <button
                     onClick={() => setShowDetailModal(false)}
                     className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
-                    <X className="w-6 h-6" />
+                    <X className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
                 </div>
 
-                <div className="relative rounded-xl overflow-hidden mb-6">
+                <div className="relative rounded-xl overflow-hidden mb-4 md:mb-6">
                   <img
                     src={
                       selectedItem.imageUrl ||
                       "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400"
                     }
                     alt={selectedItem.itemName}
-                    className="w-full h-64 object-cover"
+                    className="w-full h-48 md:h-64 object-cover"
                     onError={(e) => {
                       e.target.src =
                         "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400";
                     }}
                   />
-                  <div className="absolute top-4 left-4">
+                  <div className="absolute top-2 md:top-4 left-2 md:left-4">
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium shadow-lg ${
+                      className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium shadow-lg ${
                         selectedItem.condition === "good"
                           ? "bg-green-500 text-white"
                           : selectedItem.condition === "needs_repair"
@@ -1365,9 +1381,9 @@ function InventarisView() {
                   </div>
 
                   {/* Lendable Status */}
-                  <div className="absolute top-4 right-4">
+                  <div className="absolute top-2 md:top-4 right-2 md:right-4">
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium shadow-lg ${
+                      className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium shadow-lg ${
                         selectedItem.isLendable
                           ? "bg-green-500 text-white"
                           : "bg-red-500 text-white"
@@ -1379,37 +1395,41 @@ function InventarisView() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bold text-gray-900">
+                <div className="space-y-3 md:space-y-4">
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-900">
                     {selectedItem.itemName}
                   </h3>
 
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl">
+                  <div className="grid grid-cols-2 gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">
+                      <div className="text-xl md:text-2xl font-bold text-green-600">
                         {selectedItem.quantity || 0}
                       </div>
-                      <div className="text-sm text-gray-500">Total Unit</div>
+                      <div className="text-xs md:text-sm text-gray-500">
+                        Total Unit
+                      </div>
                     </div>
                     <div className="text-center">
                       <div
-                        className={`text-2xl font-bold ${
+                        className={`text-xl md:text-2xl font-bold ${
                           (selectedItem.currentlyAvailable || 0) > 0
                             ? "text-green-600"
                             : "text-red-600"
                         }`}>
                         {selectedItem.currentlyAvailable || 0}
                       </div>
-                      <div className="text-sm text-gray-500">Tersedia</div>
+                      <div className="text-xs md:text-sm text-gray-500">
+                        Tersedia
+                      </div>
                     </div>
                   </div>
 
                   {/* Status Information */}
-                  <div className="p-4 bg-blue-50 rounded-xl">
-                    <h4 className="font-medium text-gray-900 mb-2">
+                  <div className="p-3 md:p-4 bg-blue-50 rounded-xl">
+                    <h4 className="text-sm md:text-base font-medium text-gray-900 mb-2">
                       📊 Status Barang:
                     </h4>
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Kondisi:</span>
                         <span
@@ -1459,22 +1479,22 @@ function InventarisView() {
                   </div>
 
                   {selectedItem.description && (
-                    <div className="p-4 bg-green-50 rounded-xl">
-                      <h4 className="font-medium text-gray-900 mb-2">
+                    <div className="p-3 md:p-4 bg-green-50 rounded-xl">
+                      <h4 className="text-sm md:text-base font-medium text-gray-900 mb-2">
                         📝 Deskripsi:
                       </h4>
-                      <p className="text-gray-700 leading-relaxed">
+                      <p className="text-xs md:text-sm text-gray-700 leading-relaxed">
                         {selectedItem.description}
                       </p>
                     </div>
                   )}
 
                   {/* Additional Information */}
-                  <div className="p-4 bg-blue-50 rounded-xl">
-                    <h4 className="font-medium text-gray-900 mb-2">
+                  <div className="p-3 md:p-4 bg-blue-50 rounded-xl">
+                    <h4 className="text-sm md:text-base font-medium text-gray-900 mb-2">
                       ℹ️ Informasi Tambahan:
                     </h4>
-                    <div className="space-y-1 text-sm text-gray-700">
+                    <div className="space-y-1 text-xs md:text-sm text-gray-700">
                       <p>
                         • Status peminjaman:{" "}
                         {selectedItem.isLendable
@@ -1498,10 +1518,10 @@ function InventarisView() {
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-6">
+                <div className="flex gap-2 md:gap-3 pt-4 md:pt-6">
                   <button
                     onClick={() => setShowDetailModal(false)}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300">
+                    className="flex-1 px-3 md:px-4 py-2.5 md:py-3 border border-gray-300 rounded-lg text-xs md:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300">
                     🔙 Tutup
                   </button>
                   <button
@@ -1513,7 +1533,7 @@ function InventarisView() {
                       (selectedItem.currentlyAvailable || 0) <= 0 ||
                       !selectedItem.isLendable
                     }
-                    className={`flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 shadow-md hover:shadow-lg ${
+                    className={`flex-1 px-3 md:px-4 py-2.5 md:py-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-300 shadow-md hover:shadow-lg ${
                       (selectedItem.currentlyAvailable || 0) > 0 &&
                       selectedItem.isLendable
                         ? "bg-green-600 text-white hover:bg-green-700"
@@ -1534,9 +1554,9 @@ function InventarisView() {
       {/* Back to Top Button */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="fixed bottom-8 right-8 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-110 z-50">
+        className="fixed bottom-6 right-6 md:bottom-8 md:right-8 bg-green-600 hover:bg-green-700 text-white p-3 md:p-4 rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-110 z-50">
         <svg
-          className="w-6 h-6"
+          className="w-5 h-5 md:w-6 md:h-6"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24">
